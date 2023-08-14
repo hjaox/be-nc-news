@@ -1,4 +1,5 @@
-const {selectArticle} = require('../models/articles.model')
+const {selectArticle,
+    selectCommentsByArticleId} = require('../models/articles.model')
 
 function getArticleById(request, response, next) {
     const {article_id} = request.params;
@@ -11,4 +12,15 @@ function getArticleById(request, response, next) {
     })
 }
 
-module.exports = {getArticleById}
+function getCommentsByArticleId(request, response, next) {
+    const {article_id} = request.params;
+    selectCommentsByArticleId(article_id)
+    .then((commentsByArticleIdData) => {
+        response.status(200).send({comments: commentsByArticleIdData})
+    })
+    .catch((err) => {
+        next(err);
+    })
+}
+
+module.exports = {getArticleById, getCommentsByArticleId}
