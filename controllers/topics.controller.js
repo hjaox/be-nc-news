@@ -1,4 +1,4 @@
-const {allTopicsData} = require('../models/topics.mode.controller')
+const {allTopicsData} = require('../models/topics.model')
 
 function getAllTopicsData(request, response, next) {
     allTopicsData()
