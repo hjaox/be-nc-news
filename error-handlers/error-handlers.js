@@ -8,7 +8,7 @@ function psqlErrorHandler(err, request, response, next) {
 
 function customErrorHandler(err, request, response, next) {
     if(err.status || err.msg) {
-        response.status(400).send({msg: err.msg})
+        response.status(err.status).send({msg: err.msg})
     } else {
         next(err)
     }
