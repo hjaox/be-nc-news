@@ -3,6 +3,7 @@ const request = require('supertest');
 const db = require('../db/connection');
 const seed = require('../db/seeds/seed');
 const data = require('../db/data/test-data');
+const fs = require('fs/promises')
 
 beforeEach(() => seed(data));
 afterAll(() => db.end());
@@ -15,6 +16,7 @@ describe('App Tests', () => {
             .expect(200);
         })
         test('200: returns all topics with certain properties upon successful request', () => {
+            
             return request(app)
             .get('/api/topics')
             .then(({body}) => {
@@ -35,12 +37,10 @@ describe('App Tests', () => {
         test('200: returns an object with description', () => {
             return request(app)
             .get('/api')
-            .then(({body}) => {
-                expect(typeof body).toBe('object');
-                expect(Array.isArray(body)).toBe(false);
-                
-                Object.values(body).forEach(endpoint => {
-                    expect(endpoint).toHaveProperty('description')
+            .then(({body: {endpoints}}) => {
+                fs.readFile('./endpoints.json', 'utf-8')
+                .then((expectedData) => {
+                   expect(JSON.parse(expectedData)).toEqual(endpoints)
                 })
             })
         })
