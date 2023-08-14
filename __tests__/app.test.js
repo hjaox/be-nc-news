@@ -58,13 +58,37 @@ describe('App Tests', () => {
                 expect(article).toHaveProperty('author', 'butter_bridge');
                 expect(article).toHaveProperty('title', "Living in the shadow of a great man");
                 expect(article).toHaveProperty('body', "I find this existence challenging");
-                expect(article).toHaveProperty('topic', "mitch")
+                expect(article).toHaveProperty('topic', "mitch");
                 expect(article).toHaveProperty('created_at', '2020-07-09T20:11:00.000Z');
                 expect(article).toHaveProperty('votes', 100);
                 expect(article).toHaveProperty('article_img_url', "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700");
             })
         })
-
+    })
+    describe('GET `/api/articles` tests', () => {
+        test('200: returns status code 200 upon successful GET request', () => {
+            return request(app)
+            .get('/api/articles')
+            .expect(200);
+        })
+        test('200: returns all articles data with certain properties upon successful request', () => {
+            return request(app)
+            .get('/api/articles')
+            .then(({body: {articles}}) => {
+                expect(articles).toBeSorted('created_at', {descending:true})
+                
+                articles.forEach(article => {
+                    expect(article).toHaveProperty('author', expect.any(String));
+                    expect(article).toHaveProperty('title', expect.any(String));
+                    expect(article).toHaveProperty('article_id', expect.any(Number));
+                    expect(article).toHaveProperty('topic', expect.any(String));
+                    expect(article).toHaveProperty('created_at', expect.any(String));
+                    expect(article).toHaveProperty('votes', expect.any(Number));
+                    expect(article).toHaveProperty('article_img_url', expect.any(String));
+                    expect(article).toHaveProperty('comment_count', expect.any(Number));
+                })
+            })
+        })
     })
     describe('Error handling tests', () => {
         describe('GET `/api/articles/:article_id` errors', () => {
