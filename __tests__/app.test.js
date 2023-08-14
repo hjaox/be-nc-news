@@ -25,8 +25,31 @@ describe('App Tests', () => {
                 })
             })
         })
-
     })
+    describe('GET `/api` tests',() => {
+        test('200: returns a status code of 200 upon successful GET request', () => {
+            return request(app)
+            .get('/api')
+            .expect(200);
+        })
+        test('200: returns an object with description', () => {
+            return request(app)
+            .get('/api')
+            .then(({body}) => {
+                expect(typeof body).toBe('object');
+                expect(Array.isArray(body)).toBe(false);
+                
+                Object.values(body).forEach(endpoint => {
+                    expect(endpoint).toHaveProperty('description')
+                })
+            })
+        })
+    })
+    // describe('',() => { //<--template only for copy paste, please ignore
+    //     test('', () => {
+    //         expect().toBe()
+    //     })
+    // })
     describe('Error handling tests', () => {
     })
 })
