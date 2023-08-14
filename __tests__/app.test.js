@@ -8,7 +8,7 @@ beforeEach(() => seed(data));
 afterAll(() => db.end());
 
 describe('App Tests', () => {
-    describe('GET tests', () => {
+    describe('GET `/api/topics` tests', () => {
         test('200: returns status code 200 upon successful GET request', () => {
             return request(app)
             .get('/api/topics')
@@ -18,6 +18,7 @@ describe('App Tests', () => {
             return request(app)
             .get('/api/topics')
             .then(({body}) => {
+                expect(body.length).toBe(3);
                 body.forEach(topic => {
                     expect(topic).toHaveProperty('slug');
                     expect(topic).toHaveProperty('description');
