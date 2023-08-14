@@ -4,10 +4,13 @@ const {serverErrorHandler,
     customErrorHandler,
     psqlErrorHandler} = require('./error-handlers/error-handlers')
 const {getArticleById} = require('./controllers/articles.controller')
+const {getAllEndpoints} = require('./controllers/endpoints.controller')
 
 const app = express();
 
 app.get('/api/topics', getAllTopicsData)
+
+app.get('/api', getAllEndpoints)
 
 app.get('/api/articles/:article_id', getArticleById)
 
