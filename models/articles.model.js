@@ -29,4 +29,10 @@ function allArticlesData() {
     })
 }
 
-module.exports = {selectArticle, allArticlesData}
+function updateArticle(article_id, article_body) {
+    if(Object.keys(article_body).length !== 1 && !Object.keys(article_body).includes('inc_votes')) {
+        
+    }
+}
+
+module.exports = {selectArticle, allArticlesData, updateArticle}
