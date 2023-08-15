@@ -102,7 +102,7 @@ describe('App Tests', () => {
             .expect(200);
         })
         test('200: returns an array of comments for the given article_id of which each comment should have certain properties', () => {
-            const toMatchObject = {
+            const expectedObject = {
                 comment_id: expect.any(Number),
                 votes: expect.any(Number),
                 created_at: expect.any(String),
@@ -119,7 +119,7 @@ describe('App Tests', () => {
                 expect(comments.length).not.toBe(0);
 
                 comments.forEach((comment) => {
-                    expect(comment).toMatchObject(toMatchObject);
+                    expect(comment).toMatchObject(expectedObject);
                 })
             })
         })
@@ -155,6 +155,50 @@ describe('POST `/api/articles/:article_id/comments` tests', () => {
         .then(({body: {postedComment}}) => {
             expect(postedComment).toMatchObject(expectedObject);
         });
+    })
+})
+describe('PATCH `/api/articles/:article_id', () => {
+    test('200:returns status code 200 upon successful patch request', () => {
+        return request(app)
+        .patch('/api/articles/1')
+        .send({inc_votes:999})
+        .expect(200);
+    })
+    test('200:returns the updated article upon successful patch request(incrementing votes)', () => {
+        const expectedObject = {
+            author: 'butter_bridge',
+            title:  'Living in the shadow of a great man',
+            body: 'I find this existence challenging',
+            topic: 'mitch',
+            created_at: '2020-07-09T20:11:00.000Z',
+            votes: 1099,
+            article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        };
+
+        return request(app)
+        .patch('/api/articles/1')
+        .send({inc_votes:999})
+        .then(({body: {updatedArticle}}) => {
+            expect(updatedArticle).toMatchObject(expectedObject);
+        })
+    })
+    test('200:returns the updated article upon successful patch request(decrementing votes)', () => {
+
+        return request(app)
+        .patch('/api/articles/1')
+        .send({inc_votes:-100})
+        .then(({body: {updatedArticle}}) => {
+            expect(updatedArticle.votes).toEqual(0);
+        })
+    })
+    test('200: returns status code 200 when sent with a valid and existing article id even if the body send have multiple properties(which will be ignored) as long as it contains the required property(inc_votes)', () => { //<---
+        return request(app)
+        .patch('/api/articles/1')
+        .send({test: 'test', inc_votes:999})
+        .then(({body: {updatedArticle}}) => {
+            expect(updatedArticle.votes).toEqual(1099);
+            expect(updatedArticle).not.toHaveProperty('test');
+        })
     })
 })
 
@@ -224,5 +268,34 @@ describe('Error handling tests', () => {
             })
         })
     })
+    describe('PATCH `/api/articles/:article_id` errors', () => {
+        test('400: returns status code 400 when sent with an invalid request', () => {
+            return request(app)
+            .patch('/api/articles/test')
+            .send({inc_votes:999})
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('Bad Request')
+            });
+        })
+
+        test('400: returns status code 400 when sent with a valid and existing article id but wrong body property', () => {
+            return request(app)
+            .patch('/api/articles/1')
+            .send({test:999})
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('Bad Request')
+            });
+        })
+        test('404: returns status code 404 when sent with a valid but non existing article id', () => {
+            return request(app)
+            .patch('/api/articles/9999')
+            .send({inc_votes:999})
+            .expect(404)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('Not Found')
+            })
+        })
+    })
 })
-    
