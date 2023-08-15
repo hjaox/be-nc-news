@@ -133,14 +133,14 @@ describe('App Tests', () => {
     })  
 })
 describe('POST `/api/articles/:article_id/comments` tests', () => {
-    test('201: returns status code 200 upon successful POST request', () => {
+    test('201: returns status code 201 upon successful POST request', () => {
         return request(app)
         .post('/api/articles/1/comments')
         .send({body: 'test body', author: 'lurker'})
         .expect(201);
     })
     test('201: responds with the posted comment with the required properties', () => {
-        const toMatchObject = {
+        const expectedObject = {
             body: 'test body',
             author: 'lurker',
             votes: 0,
@@ -153,7 +153,7 @@ describe('POST `/api/articles/:article_id/comments` tests', () => {
         .post('/api/articles/1/comments')
         .send({body: 'test body', author: 'lurker'})
         .then(({body: {postedComment}}) => {
-            expect(postedComment).toMatchObject(toMatchObject);
+            expect(postedComment).toMatchObject(expectedObject);
         });
     })
 })
