@@ -60,7 +60,7 @@ function insertComment(article_id, article_body) {
 }
 
 function updateArticle(article_id, article_body) {
-    if(Object.keys(article_body).length !== 1 || !Object.keys(article_body).includes('inc_votes')) {
+    if(!Object.keys(article_body).includes('inc_votes')) {
         return Promise.reject({status: 400, msg: 'Bad Request'})        
     }
     return db.query(`
@@ -68,6 +68,9 @@ function updateArticle(article_id, article_body) {
     SET votes = votes + $1
     WHERE article_id = $2 RETURNING *`, [article_body.inc_votes, article_id])
     .then(({rows}) => {
+        if(!rows.length) {
+            return Promise.reject({status: 404, msg: 'Not Found'})
+        }
         return rows[0]
     })
 }

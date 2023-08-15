@@ -164,18 +164,40 @@ describe('PATCH `/api/articles/:article_id', () => {
         .send({inc_votes:999})
         .expect(200);
     })
-    test('200:returns the updated article upon successful patch request', () => {
+    test('200:returns the updated article upon successful patch request(incrementing votes)', () => {
+        const expectedObject = {
+            author: 'butter_bridge',
+            title:  'Living in the shadow of a great man',
+            body: 'I find this existence challenging',
+            topic: 'mitch',
+            created_at: '2020-07-09T20:11:00.000Z',
+            votes: 1099,
+            article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        };
+
         return request(app)
         .patch('/api/articles/1')
         .send({inc_votes:999})
         .then(({body: {updatedArticle}}) => {
-            expect(updatedArticle).toHaveProperty('author', 'butter_bridge');
-            expect(updatedArticle).toHaveProperty('title', "Living in the shadow of a great man");
-            expect(updatedArticle).toHaveProperty('body', "I find this existence challenging");
-            expect(updatedArticle).toHaveProperty('topic', "mitch");
-            expect(updatedArticle).toHaveProperty('created_at', '2020-07-09T20:11:00.000Z');
-            expect(updatedArticle).toHaveProperty('votes', 1099);
-            expect(updatedArticle).toHaveProperty('article_img_url', "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700");
+            expect(updatedArticle).toMatchObject(expectedObject);
+        })
+    })
+    test('200:returns the updated article upon successful patch request(decrementing votes)', () => {
+
+        return request(app)
+        .patch('/api/articles/1')
+        .send({inc_votes:-100})
+        .then(({body: {updatedArticle}}) => {
+            expect(updatedArticle.votes).toEqual(0);
+        })
+    })
+    test('200: returns status code 200 when sent with a valid and existing article id even if the body send have multiple properties(which will be ignored) as long as it contains the required property(inc_votes)', () => { //<---
+        return request(app)
+        .patch('/api/articles/1')
+        .send({test: 'test', inc_votes:999})
+        .then(({body: {updatedArticle}}) => {
+            expect(updatedArticle.votes).toEqual(1099);
+            expect(updatedArticle).not.toHaveProperty('test');
         })
     })
 })
@@ -261,15 +283,6 @@ describe('Error handling tests', () => {
             return request(app)
             .patch('/api/articles/1')
             .send({test:999})
-            .expect(400)
-            .then(({body: {msg}}) => {
-                expect(msg).toBe('Bad Request')
-            });
-        })
-        test('400: returns status code 400 when sent with a valid and existing article id but with invalid boy properties even if one of them is the required property', () => {
-            return request(app)
-            .patch('/api/articles/1')
-            .send({test:999, inc_votes:999})
             .expect(400)
             .then(({body: {msg}}) => {
                 expect(msg).toBe('Bad Request')
