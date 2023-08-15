@@ -1,5 +1,5 @@
 function psqlErrorHandler(err, request, response, next) {    
-    if(err.code === '22P02') {
+    if(err.code === '22P02' || err.code === '23502') {
         response.status(400).send({msg: 'Bad Request'})
     } else {
         next(err)
@@ -15,6 +15,7 @@ function customErrorHandler(err, request, response, next) {
 }
 
 function serverErrorHandler(err, request, response, next) {
+    console.log(err)
     response.status(500).send(err)
 }
 

@@ -52,16 +52,19 @@ describe('App Tests', () => {
             .expect(200);
         })
         test('200: returns an article object based on submitted id and will have certain properties', () => {
+            const expectedObject = {
+                author: 'butter_bridge',
+                title: 'Living in the shadow of a great man',
+                body: 'I find this existence challenging',
+                topic: 'mitch',
+                created_at: '2020-07-09T20:11:00.000Z',
+                votes: 100,
+                article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+            }
             return request(app)
             .get('/api/articles/1')
             .then(({body: {article}}) => {
-                expect(article).toHaveProperty('author', 'butter_bridge');
-                expect(article).toHaveProperty('title', "Living in the shadow of a great man");
-                expect(article).toHaveProperty('body', "I find this existence challenging");
-                expect(article).toHaveProperty('topic', "mitch");
-                expect(article).toHaveProperty('created_at', '2020-07-09T20:11:00.000Z');
-                expect(article).toHaveProperty('votes', 100);
-                expect(article).toHaveProperty('article_img_url', "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700");
+                expect(article).toMatchObject(expectedObject);
             })
         })
     })
@@ -102,7 +105,7 @@ describe('App Tests', () => {
             .expect(200);
         })
         test('200: returns an array of comments for the given article_id of which each comment should have certain properties', () => {
-            const toMatchObject = {
+            const expectedObject = {
                 comment_id: expect.any(Number),
                 votes: expect.any(Number),
                 created_at: expect.any(String),
@@ -119,7 +122,7 @@ describe('App Tests', () => {
                 expect(comments.length).not.toBe(0);
 
                 comments.forEach((comment) => {
-                    expect(comment).toMatchObject(toMatchObject);
+                    expect(comment).toMatchObject(expectedObject);
                 })
             })
         })
@@ -157,11 +160,62 @@ describe('POST `/api/articles/:article_id/comments` tests', () => {
         });
     })
 })
+describe('PATCH `/api/articles/:article_id', () => {
+    test('200:returns status code 200 upon successful patch request', () => {
+        return request(app)
+        .patch('/api/articles/1')
+        .send({inc_votes:999})
+        .expect(200);
+    })
+    test('200:returns the updated article upon successful patch request(incrementing votes)', () => {
+        const expectedObject = {
+            author: 'butter_bridge',
+            title:  'Living in the shadow of a great man',
+            body: 'I find this existence challenging',
+            topic: 'mitch',
+            created_at: '2020-07-09T20:11:00.000Z',
+            votes: 1099,
+            article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        };
+
+        return request(app)
+        .patch('/api/articles/1')
+        .send({inc_votes:999})
+        .then(({body: {updatedArticle}}) => {
+            expect(updatedArticle).toMatchObject(expectedObject);
+        })
+    })
+    test('200:returns the updated article upon successful patch request(decrementing votes)', () => {
+
+        return request(app)
+        .patch('/api/articles/1')
+        .send({inc_votes:-100})
+        .then(({body: {updatedArticle}}) => {
+            expect(updatedArticle.votes).toEqual(0);
+        })
+    })
+    test('200: returns status code 200 when sent with a valid and existing article id even if the body send have multiple properties(which will be ignored) as long as it contains the required property(inc_votes)', () => { //<---
+        return request(app)
+        .patch('/api/articles/1')
+        .send({test: 'test', inc_votes:999})
+        .then(({body: {updatedArticle}}) => {
+            expect(updatedArticle.votes).toEqual(1099);
+            expect(updatedArticle).not.toHaveProperty('test');
+        })
+    })
+})
 describe('DELETE `/api/comments/:comment_id`',() => {
     test('204: returns status code 204 upon successful deletion and no content', () => {
-        // return request(app)
-        // .delete('/api/comments/1')
-        // .expect(204);
+        return request(app)
+        .delete('/api/comments/1')
+        .expect(204);
+    })
+    test('204: returns status code 204 upon successful deletion and no content', () => {
+        return request(app)
+        .delete('/api/comments/1')
+        .then(({body}) => {
+            expect(body).toEqual({})
+        })
     })
 })
 
@@ -231,5 +285,52 @@ describe('Error handling tests', () => {
             })
         })
     })
+    describe('PATCH `/api/articles/:article_id` errors', () => {
+        test('400: returns status code 400 when sent with an invalid request', () => {
+            return request(app)
+            .patch('/api/articles/test')
+            .send({inc_votes:999})
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('Bad Request')
+            });
+        })
+
+        test('400: returns status code 400 when sent with a valid and existing article id but wrong body property', () => {
+            return request(app)
+            .patch('/api/articles/1')
+            .send({test:999})
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('Bad Request')
+            });
+        })
+        test('404: returns status code 404 when sent with a valid but non existing article id', () => {
+            return request(app)
+            .patch('/api/articles/9999')
+            .send({inc_votes:999})
+            .expect(404)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('Not Found')
+            })
+        })
+    })
+    describe('DELETE `/api/comments/:comment_id` errors', () => {
+        test('400: returns status code 400 when sent with an invalid request', () => {
+            return request(app)
+            .delete('/api/comments/test')
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('Bad Request')
+            });
+        })
+        test('400: returns status code 400 when sent with a valid but non-existent id request', () => {
+            return request(app)
+            .delete('/api/comments/9999')
+            .expect(404)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('Not Found')
+            })
+        })
+    })
 })
-    

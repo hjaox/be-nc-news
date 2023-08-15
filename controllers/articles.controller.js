@@ -1,7 +1,8 @@
 const {selectArticle,
     allArticlesData,
     selectCommentsByArticleId,
-    insertComment} = require('../models/articles.model')
+    insertComment,
+    updateArticle} = require('../models/articles.model')
 
 function getArticleById(request, response, next) {
     const {article_id} = request.params;
@@ -50,5 +51,17 @@ function getAllArticlesData(_, response, next) {
         next(err)
     })
 }
+
+function patchArticleById(request, response, next) {
+    const {article_id} = request.params;
+    const {body} = request;
+    updateArticle(article_id, body)
+    .then((updatedArticleData) => {
+        response.status(200).send({updatedArticle: updatedArticleData})
+    })
+    .catch(err => {
+        next(err)
+    })
+}
     
-module.exports = {getArticleById, getAllArticlesData, getCommentsByArticleId, postComment}
+module.exports = {getArticleById, getAllArticlesData, getCommentsByArticleId, postComment, patchArticleById}

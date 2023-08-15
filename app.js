@@ -5,7 +5,8 @@ const {serverErrorHandler,
     psqlErrorHandler} = require('./error-handlers/error-handlers')
 const {getArticleById,
     getAllArticlesData,
-    getCommentsByArticleId, postComment} = require('./controllers/articles.controller')
+    getCommentsByArticleId, postComment,
+    patchArticleById} = require('./controllers/articles.controller')
 const {getAllEndpoints} = require('./controllers/endpoints.controller')
 const {deleteCommentById} = require('./controllers/comments.controller')
 
@@ -25,12 +26,12 @@ app.get('/api/articles/:article_id/comments', getCommentsByArticleId)
 
 app.post('/api/articles/:article_id/comments', postComment)
 
+app.patch('/api/articles/:article_id', patchArticleById)
+
 app.delete('/api/comments/:comment_id', deleteCommentById)
 
 app.use(psqlErrorHandler)
-
 app.use(customErrorHandler)
-
 app.use(serverErrorHandler)
 
 module.exports = app
