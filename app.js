@@ -7,6 +7,7 @@ const {getArticleById,
     getAllArticlesData,
     getCommentsByArticleId, postComment} = require('./controllers/articles.controller')
 const {getAllEndpoints} = require('./controllers/endpoints.controller')
+const {deleteCommentById} = require('./controllers/comments.controller')
 
 const app = express();
 
@@ -23,6 +24,8 @@ app.get('/api/articles', getAllArticlesData)
 app.get('/api/articles/:article_id/comments', getCommentsByArticleId)
 
 app.post('/api/articles/:article_id/comments', postComment)
+
+app.delete('/api/comments/:comment_id', deleteCommentById)
 
 app.use(psqlErrorHandler)
 

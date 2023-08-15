@@ -157,6 +157,13 @@ describe('POST `/api/articles/:article_id/comments` tests', () => {
         });
     })
 })
+describe('DELETE `/api/comments/:comment_id`',() => {
+    test('204: returns status code 204 upon successful deletion and no content', () => {
+        // return request(app)
+        // .delete('/api/comments/1')
+        // .expect(204);
+    })
+})
 
 describe('Error handling tests', () => {
     describe('GET `/api/articles/:article_id` errors', () => {
