@@ -4,7 +4,6 @@ const db = require('../db/connection');
 const seed = require('../db/seeds/seed');
 const data = require('../db/data/test-data');
 const fs = require('fs/promises');
-const { send } = require('process');
 
 beforeEach(() => seed(data));
 afterAll(() => db.end());
@@ -83,7 +82,7 @@ describe('App Tests', () => {
                 article_id: 1,
                 comment_id: expect.any(Number)
             }
-            
+
             return request(app)
             .post('/api/articles/1/comments')
             .send({body: 'test body', author: 'lurker'})
