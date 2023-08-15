@@ -1,4 +1,3 @@
-const { response } = require('../app');
 const {selectArticle,
     allArticlesData} = require('../models/articles.model')
 
@@ -13,16 +12,10 @@ function getArticleById(request, response, next) {
     })
 }
 
-function getAllArticlesData(request, response, next) {
+function getAllArticlesData(_, response, next) {
     allArticlesData()
     .then((allArticlesData) => {
-        const formattedArticlesData = allArticlesData.map(article => {
-            const copyArticle = {...article};
-            copyArticle.votes = +copyArticle.votes;
-            copyArticle.comment_count = +copyArticle.comment_count;
-            return copyArticle
-        })
-        response.status(200).send({articles: formattedArticlesData})
+        response.status(200).send({articles: allArticlesData})
     })
     .catch(err => {
         next(err)

@@ -72,20 +72,25 @@ describe('App Tests', () => {
             .expect(200);
         })
         test('200: returns all articles data with certain properties upon successful request', () => {
+            const toMatchObject = {
+                author: expect.any(String),
+                title: expect.any(String),
+                article_id: expect.any(Number),
+                topic: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                article_img_url: expect.any(String),
+                comment_count: expect.any(Number)
+            }
+
             return request(app)
             .get('/api/articles')
             .then(({body: {articles}}) => {
-                expect(articles).toBeSorted('created_at', {descending:true})
+                expect(articles).toBeSortedBy('created_at', {descending:true});
+                expect(articles).toEqual(articles.sort((a,b) => b.created_at - a.created_at));
                 
                 articles.forEach(article => {
-                    expect(article).toHaveProperty('author', expect.any(String));
-                    expect(article).toHaveProperty('title', expect.any(String));
-                    expect(article).toHaveProperty('article_id', expect.any(Number));
-                    expect(article).toHaveProperty('topic', expect.any(String));
-                    expect(article).toHaveProperty('created_at', expect.any(String));
-                    expect(article).toHaveProperty('votes', expect.any(Number));
-                    expect(article).toHaveProperty('article_img_url', expect.any(String));
-                    expect(article).toHaveProperty('comment_count', expect.any(Number));
+                    expect(article).toMatchObject(toMatchObject);
                 })
             })
         })
