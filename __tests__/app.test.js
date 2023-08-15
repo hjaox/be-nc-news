@@ -75,16 +75,20 @@ describe('App Tests', () => {
             .expect(201);
         })
         test('201: responds with the posted comment with the required properties', () => {
+            const toMatchObject = {
+                body: 'test body',
+                author: 'lurker',
+                votes: 0,
+                created_at: expect.any(String),
+                article_id: 1,
+                comment_id: expect.any(Number)
+            }
+            
             return request(app)
             .post('/api/articles/1/comments')
             .send({body: 'test body', author: 'lurker'})
             .then(({body: {postedComment}}) => {
-                expect(postedComment).toHaveProperty('body', 'test body');
-                expect(postedComment).toHaveProperty('author', 'lurker');
-                expect(postedComment).toHaveProperty('votes', 0);
-                expect(postedComment).toHaveProperty('created_at', expect.any(String));
-                expect(postedComment).toHaveProperty('article_id', 1);
-                expect(postedComment).toHaveProperty('comment_id', expect.any(Number));
+                expect(postedComment).toMatchObject(toMatchObject);
             });
         })
     })
