@@ -1,5 +1,6 @@
 const {selectArticle,
-    allArticlesData} = require('../models/articles.model')
+    allArticlesData,
+    selectCommentsByArticleId} = require('../models/articles.model')
 
 function getArticleById(request, response, next) {
     const {article_id} = request.params;
@@ -9,6 +10,19 @@ function getArticleById(request, response, next) {
     }) 
     .catch((err) => {
         next(err)
+    })
+}
+
+function getCommentsByArticleId(request, response, next) {
+    const {article_id} = request.params;
+    const promises = [selectArticle(article_id), selectCommentsByArticleId(article_id)];
+
+    Promise.all(promises)
+    .then((promisesData) => {
+        response.status(200).send({comments: promisesData[1]})
+    })
+    .catch((err) => {
+        next(err);
     })
 }
 
@@ -22,4 +36,4 @@ function getAllArticlesData(_, response, next) {
     })
 }
     
-module.exports = {getArticleById, getAllArticlesData}
+module.exports = {getArticleById, getAllArticlesData, getCommentsByArticleId}

@@ -13,7 +13,19 @@ function selectArticle(article_id) {
         }        
         return rows[0]
     })
+}
 
+function selectCommentsByArticleId(article_id) {
+    const queryStr = format(`
+    SELECT * FROM comments
+    WHERE article_id = %L
+    ORDER BY created_at DESC`, [article_id]);
+
+    return db.query(queryStr)
+    .then(({rows}) => {
+
+        return rows
+    })
 }
 
 function allArticlesData() {
@@ -29,4 +41,4 @@ function allArticlesData() {
     })
 }
 
-module.exports = {selectArticle, allArticlesData}
+module.exports = {selectArticle, allArticlesData, selectCommentsByArticleId}

@@ -95,24 +95,80 @@ describe('App Tests', () => {
             })
         })
     })
-    describe('Error handling tests', () => {
-        describe('GET `/api/articles/:article_id` errors', () => {
-            test('400: returns status code 400 when sent with an invalid request', () => {
-                return request(app)
-                .get('/api/articles/test')
-                .expect(400)
-                .then(({body: {msg}}) => {
-                    expect(msg).toBe('Bad Request')
-                });
-            })
-            test('400: returns status code 400 when sent with a valid but non-existent id request', () => {
-                return request(app)
-                .get('/api/articles/9999')
-                .expect(404)
-                .then(({body: {msg}}) => {
-                    expect(msg).toBe('Not Found')
+    describe('GET `/api/articles/:article_id/comments` tests', () => {
+        test('200: returns status code 200 upon successful GET request', () => {
+            return request(app)
+            .get('/api/articles/1/comments')
+            .expect(200);
+        })
+        test('200: returns an array of comments for the given article_id of which each comment should have certain properties', () => {
+            const toMatchObject = {
+                comment_id: expect.any(Number),
+                votes: expect.any(Number),
+                created_at: expect.any(String),
+                author: expect.any(String),
+                body: expect.any(String),
+                article_id: expect.any(Number)
+            }
+            return request(app)
+            .get('/api/articles/1/comments')
+            .then(({body: {comments}}) => {
+                expect(Array.isArray(comments)).toBe(true);
+                expect(comments).toBeSortedBy('created_at', {descending: true});
+                expect(comments).toEqual(comments.sort((a,b) => b.created_at - a.created_at));
+                expect(comments.length).not.toBe(0);
+
+                comments.forEach((comment) => {
+                    expect(comment).toMatchObject(toMatchObject);
                 })
+            })
+        })
+        test('200: returns an empty array if a certain article does not have comments', () => {
+            return request(app)
+            .get('/api/articles/2/comments')
+            .then(({body: {comments}}) => {
+                expect(comments).toEqual([]);
+            })
+        })
+    })  
+})
+
+describe('Error handling tests', () => {
+    describe('GET `/api/articles/:article_id` errors', () => {
+        test('400: returns status code 400 when sent with an invalid request', () => {
+            return request(app)
+            .get('/api/articles/test')
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('Bad Request')
+            });
+        })
+        test('400: returns status code 400 when sent with a valid but non-existent id request', () => {
+            return request(app)
+            .get('/api/articles/9999')
+            .expect(404)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('Not Found')
+            })
+        })
+    })
+    describe('GET `/api/articles/:article_id/comments` errors', () => {
+        test('400: returns status code 400 when sent with an invalid request', () => {
+            return request(app)
+            .get('/api/articles/test/comments')
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('Bad Request')
+            });
+        })
+        test('404: returns status code 404 when sent with a valid but non-existent id request', () => {
+            return request(app)
+            .get('/api/articles/9999/comments')
+            .expect(404)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('Not Found')
             })
         })
     })
 })
+    
