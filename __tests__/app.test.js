@@ -52,16 +52,19 @@ describe('App Tests', () => {
             .expect(200);
         })
         test('200: returns an article object based on submitted id and will have certain properties', () => {
+            const expectedObject = {
+                author: 'butter_bridge',
+                title: 'Living in the shadow of a great man',
+                body: 'I find this existence challenging',
+                topic: 'mitch',
+                created_at: '2020-07-09T20:11:00.000Z',
+                votes: 100,
+                article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+            }
             return request(app)
             .get('/api/articles/1')
             .then(({body: {article}}) => {
-                expect(article).toHaveProperty('author', 'butter_bridge');
-                expect(article).toHaveProperty('title', "Living in the shadow of a great man");
-                expect(article).toHaveProperty('body', "I find this existence challenging");
-                expect(article).toHaveProperty('topic', "mitch");
-                expect(article).toHaveProperty('created_at', '2020-07-09T20:11:00.000Z');
-                expect(article).toHaveProperty('votes', 100);
-                expect(article).toHaveProperty('article_img_url', "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700");
+                expect(article).toMatchObject(expectedObject);
             })
         })
     })
