@@ -5,7 +5,7 @@ function getAllTopicsData(request, response, next) {
     .then((topicsData) => {
         response.status(200).send(topicsData)
     })
-    .then((err) => {
+    .catch((err) => {
         next(err)
     })
 }

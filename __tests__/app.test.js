@@ -3,7 +3,8 @@ const request = require('supertest');
 const db = require('../db/connection');
 const seed = require('../db/seeds/seed');
 const data = require('../db/data/test-data');
-const fs = require('fs/promises')
+const fs = require('fs/promises');
+const { send } = require('process');
 
 beforeEach(() => seed(data));
 afterAll(() => db.end());
@@ -66,6 +67,27 @@ describe('App Tests', () => {
         })
 
     })
+    describe('POST `/api/articles/:article_id/comments` tests', () => {
+        test('201: returns status code 200 upon successful POST request', () => {
+            return request(app)
+            .post('/api/articles/1/comments')
+            .send({body: 'test body', author: 'lurker'})
+            .expect(201);
+        })
+        test('201: responds with the posted comment with the required properties', () => {
+            return request(app)
+            .post('/api/articles/1/comments')
+            .send({body: 'test body', author: 'lurker'})
+            .then(({body: {postedComment}}) => {
+                expect(postedComment).toHaveProperty('body', 'test body');
+                expect(postedComment).toHaveProperty('author', 'lurker');
+                expect(postedComment).toHaveProperty('votes', 0);
+                expect(postedComment).toHaveProperty('created_at', expect.any(String));
+                expect(postedComment).toHaveProperty('article_id', 1);
+                expect(postedComment).toHaveProperty('comment_id', expect.any(Number));
+            });
+        })
+    })
     describe('Error handling tests', () => {
         describe('GET `/api/articles/:article_id` errors', () => {
             test('400: returns status code 400 when sent with an invalid request', () => {
@@ -76,7 +98,7 @@ describe('App Tests', () => {
                     expect(msg).toBe('Bad Request')
                 });
             })
-            test('400: returns status code 400 when sent with a valid but non-existent id request', () => {
+            test('404: returns status code 400 when sent with a valid but non-existent id request', () => {
                 return request(app)
                 .get('/api/articles/9999')
                 .expect(404)
@@ -84,6 +106,36 @@ describe('App Tests', () => {
                     expect(msg).toBe('Not Found')
                 })
             })
+        })
+        describe('POST `/api/articles/:article_id/comments` errors', () => {
+            test('400: returns status code 400 when sent with an invalid request', () => {
+                return request(app)
+                .post('/api/articles/test/comments')
+                .send({body: 'test body', author: 'lurker'})
+                .expect(400)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Bad Request')
+                });
+            })
+            test('400: returns status code 400 when sent with a valid article_id but does not match the required properties of the body', () => {
+                return request(app)
+                .post('/api/articles/9999/comments')
+                .send({test: 'test body', author: 'lurker'})
+                .expect(400)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Bad Request')
+                })
+            })
+            test('404: returns status code 404 when sent with a valid but non-existent id request', () => {
+                return request(app)
+                .post('/api/articles/9999/comments')
+                .send({body: 'test body', author: 'lurker'})
+                .expect(404)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Not Found')
+                })
+            })
+            
         })
     })
 })
