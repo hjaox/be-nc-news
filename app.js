@@ -10,6 +10,8 @@ const {getAllEndpoints} = require('./controllers/endpoints.controller')
 
 const app = express();
 
+app.use(express.json());
+
 app.get('/api/topics', getAllTopicsData)
 
 app.get('/api', getAllEndpoints)
@@ -20,10 +22,9 @@ app.get('/api/articles', getAllArticlesData)
 
 app.patch('/api/articles/:article_id', patchArticleById)
 
+
 app.use(psqlErrorHandler)
-
 app.use(customErrorHandler)
-
 app.use(serverErrorHandler)
 
 module.exports = app

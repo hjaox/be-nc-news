@@ -25,15 +25,13 @@ function getAllArticlesData(_, response, next) {
 
 function patchArticleById(request, response, next) {
     const {article_id} = request.params;
-    const {body} = request.body;
-    selectArticle(article_id)
-    .then(() => {
-        return updateArticle(article_id, body)
+    const {body} = request;
+    const promises = [selectArticle(article_id), updateArticle(article_id, body)];
+    Promise.all(promises)
+    .then((promisesResults) => {
+        response.status(200).send({updatedArticle: promisesResults[1]})
     })
-    .then((d) => {
-        console.log('ctrl line 33')
-    })
-    .then(err => {
+    .catch(err => {
         next(err)
     })
 }

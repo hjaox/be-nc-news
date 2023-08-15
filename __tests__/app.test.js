@@ -95,6 +95,28 @@ describe('App Tests', () => {
             })
         })
     })
+    describe('PATCH `/api/articles/:article_id', () => {
+        test('200:returns status code 200 upon successful patch request', () => {
+            return request(app)
+            .patch('/api/articles/1')
+            .send({inc_votes:999})
+            .expect(200);
+        })
+        test('200:returns the updated article upon successful patch request', () => {
+            return request(app)
+            .patch('/api/articles/1')
+            .send({inc_votes:999})
+            .then(({body: {updatedArticle}}) => {
+                expect(updatedArticle).toHaveProperty('author', 'butter_bridge');
+                expect(updatedArticle).toHaveProperty('title', "Living in the shadow of a great man");
+                expect(updatedArticle).toHaveProperty('body', "I find this existence challenging");
+                expect(updatedArticle).toHaveProperty('topic', "mitch");
+                expect(updatedArticle).toHaveProperty('created_at', '2020-07-09T20:11:00.000Z');
+                expect(updatedArticle).toHaveProperty('votes', 1099);
+                expect(updatedArticle).toHaveProperty('article_img_url', "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700");
+            })
+        })
+    })
     describe('Error handling tests', () => {
         describe('GET `/api/articles/:article_id` errors', () => {
             test('400: returns status code 400 when sent with an invalid request', () => {
@@ -108,6 +130,45 @@ describe('App Tests', () => {
             test('400: returns status code 400 when sent with a valid but non-existent id request', () => {
                 return request(app)
                 .get('/api/articles/9999')
+                .expect(404)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Not Found')
+                })
+            })
+        })
+        describe('PATCH `/api/articles/:article_id` errors', () => {
+            test('400: returns status code 400 when sent with an invalid request', () => {
+                return request(app)
+                .patch('/api/articles/test')
+                .send({inc_votes:999})
+                .expect(400)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Bad Request')
+                });
+            })
+
+            test('400: returns status code 400 when sent with a valid and existing article id but wrong body property', () => {
+                return request(app)
+                .patch('/api/articles/1')
+                .send({test:999})
+                .expect(400)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Bad Request')
+                });
+            })
+            test('400: returns status code 400 when sent with a valid and existing article id but with invalid boy properties even if one of them is the required property', () => {
+                return request(app)
+                .patch('/api/articles/1')
+                .send({test:999, inc_votes:999})
+                .expect(400)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Bad Request')
+                });
+            })
+            test('404: returns status code 404 when sent with a valid but non existing article id', () => {
+                return request(app)
+                .patch('/api/articles/9999')
+                .send({inc_votes:999})
                 .expect(404)
                 .then(({body: {msg}}) => {
                     expect(msg).toBe('Not Found')
