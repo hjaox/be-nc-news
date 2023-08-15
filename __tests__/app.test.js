@@ -132,6 +132,31 @@ describe('App Tests', () => {
         })
     })  
 })
+describe('POST `/api/articles/:article_id/comments` tests', () => {
+    test('201: returns status code 201 upon successful POST request', () => {
+        return request(app)
+        .post('/api/articles/1/comments')
+        .send({body: 'test body', author: 'lurker'})
+        .expect(201);
+    })
+    test('201: responds with the posted comment with the required properties', () => {
+        const expectedObject = {
+            body: 'test body',
+            author: 'lurker',
+            votes: 0,
+            created_at: expect.any(String),
+            article_id: 1,
+            comment_id: expect.any(Number)
+        }
+
+        return request(app)
+        .post('/api/articles/1/comments')
+        .send({body: 'test body', author: 'lurker'})
+        .then(({body: {postedComment}}) => {
+            expect(postedComment).toMatchObject(expectedObject);
+        });
+    })
+})
 
 describe('Error handling tests', () => {
     describe('GET `/api/articles/:article_id` errors', () => {
@@ -164,6 +189,35 @@ describe('Error handling tests', () => {
         test('404: returns status code 404 when sent with a valid but non-existent id request', () => {
             return request(app)
             .get('/api/articles/9999/comments')
+            .expect(404)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('Not Found')
+            })
+        })
+    })
+    describe('POST `/api/articles/:article_id/comments` errors', () => {
+        test('400: returns status code 400 when sent with an invalid request', () => {
+            return request(app)
+            .post('/api/articles/test/comments')
+            .send({body: 'test body', author: 'lurker'})
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('Bad Request')
+            });
+        })
+        test('400: returns status code 400 when sent with a valid article_id but does not match the required properties of the body', () => {
+            return request(app)
+            .post('/api/articles/9999/comments')
+            .send({test: 'test body', author: 'lurker'})
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('Bad Request')
+            })
+        })
+        test('404: returns status code 404 when sent with a valid but non-existent id request', () => {
+            return request(app)
+            .post('/api/articles/9999/comments')
+            .send({body: 'test body', author: 'lurker'})
             .expect(404)
             .then(({body: {msg}}) => {
                 expect(msg).toBe('Not Found')

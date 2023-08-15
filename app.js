@@ -5,10 +5,12 @@ const {serverErrorHandler,
     psqlErrorHandler} = require('./error-handlers/error-handlers')
 const {getArticleById,
     getAllArticlesData,
-    getCommentsByArticleId} = require('./controllers/articles.controller')
+    getCommentsByArticleId, postComment} = require('./controllers/articles.controller')
 const {getAllEndpoints} = require('./controllers/endpoints.controller')
 
 const app = express();
+
+app.use(express.json());
 
 app.get('/api/topics', getAllTopicsData)
 
@@ -19,6 +21,8 @@ app.get('/api/articles/:article_id', getArticleById)
 app.get('/api/articles', getAllArticlesData)
 
 app.get('/api/articles/:article_id/comments', getCommentsByArticleId)
+
+app.post('/api/articles/:article_id/comments', postComment)
 
 app.use(psqlErrorHandler)
 
