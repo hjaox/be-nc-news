@@ -116,6 +116,7 @@ describe('App Tests', () => {
                 expect(Array.isArray(comments)).toBe(true);
                 expect(comments).toBeSortedBy('created_at', {descending: true});
                 expect(comments).toEqual(comments.sort((a,b) => b.created_at - a.created_at));
+                expect(comments.length).not.toBe(0);
 
                 comments.forEach((comment) => {
                     expect(comment).toMatchObject(toMatchObject);
