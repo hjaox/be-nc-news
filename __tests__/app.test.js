@@ -233,6 +233,7 @@ describe('GET `/api/users` tests',() => {
         return request(app)
         .get('/api/users')
         .then(({body: {users}}) => {
+            expect(users.length).not.toBe(0);
             users.forEach(user => {
                 expect(user).toMatchObject(expectedObject);
             })
