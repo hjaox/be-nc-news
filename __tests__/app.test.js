@@ -240,6 +240,26 @@ describe('GET `/api/users` tests',() => {
         })
     })
 })
+describe('GET `/api/users/:username` tests',() => {
+    test('200: returns status code 200 upon successful request',()=> {
+        return request(app)
+        .get('/api/users/butter_bridge')
+        .expect(200);
+    })
+    test('200: returns a user object which should have certain properties',()=> {
+        const expectedObject = {
+            username: 'butter_bridge',
+            name: 'jonny',
+            avatar_url: 'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg'
+        };
+
+        return request(app)
+        .get('/api/users/butter_bridge')
+        .then(({body: {user}}) => {
+            expect(user).toEqual(expectedObject);
+        })
+    })
+})
 
 describe('Error handling tests', () => {
     describe('GET `/api/articles/:article_id` errors', () => {
@@ -357,7 +377,6 @@ describe('Error handling tests', () => {
     })
     describe('GET `/api/users` errors', () => {
         test('404: returns status code 404 if users data does not exist', () => {
-            
             return db
             .query(`DROP TABLE IF EXISTS comments`)
             .then(() => {
@@ -373,6 +392,16 @@ describe('Error handling tests', () => {
                 .then(({body: {msg}}) => {
                     expect(msg).toBe('Not Found')
                 })
+            })
+        })
+    })
+    describe('GET `/api/users/:username` errors',() => {
+        test('400: returns status code 400 when sent with an invalid request.',() => {
+            return request(app)
+            .get('/api/users/1234')
+            .expect(404)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('Not Found')
             })
         })
     })

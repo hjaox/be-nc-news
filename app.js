@@ -9,7 +9,7 @@ const {getArticleById,
     patchArticleById} = require('./controllers/articles.controller')
 const {getAllEndpoints} = require('./controllers/endpoints.controller')
 const {deleteCommentById} = require('./controllers/comments.controller')
-const {getAllUsers} = require('./controllers/users.controller')
+const {getAllUsers, getUserByUsername} = require('./controllers/users.controller')
 
 const app = express();
 
@@ -26,6 +26,8 @@ app.get('/api/articles', getAllArticlesData)
 app.get('/api/articles/:article_id/comments', getCommentsByArticleId)
 
 app.get('/api/users', getAllUsers)
+
+app.get('/api/users/:username', getUserByUsername)
 
 app.post('/api/articles/:article_id/comments', postComment)
 

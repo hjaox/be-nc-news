@@ -1,4 +1,4 @@
-const {selectAllUsers} = require('../models/users.model')
+const {selectAllUsers, selectUserByUsername} = require('../models/users.model')
 
 function getAllUsers(_, response, next) {
     selectAllUsers()
@@ -10,4 +10,15 @@ function getAllUsers(_, response, next) {
     })
 }
 
-module.exports = {getAllUsers}
+function getUserByUsername(request, response, next) {
+    const {username} = request.params;
+    selectUserByUsername(username)
+    .then((user) => {
+        response.status(200).send({user})
+    })
+    .catch(err => {
+        next(err)
+    })
+}
+
+module.exports = {getAllUsers, getUserByUsername}
