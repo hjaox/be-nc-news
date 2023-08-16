@@ -43,8 +43,8 @@ function getCommentsByArticleId(request, response, next) {
 }
 
 function getAllArticlesData(request, response, next) {
-    const {topic} = request.query;
-    allArticlesData(topic)
+    const {topic, sort_by} = request.query;
+    allArticlesData(topic, sort_by)
     .then((allArticlesData) => {
         response.status(200).send({articles: allArticlesData})
     })

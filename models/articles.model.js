@@ -27,7 +27,7 @@ function selectCommentsByArticleId(article_id) {
     })
 }
 
-function allArticlesData(topic) {
+function allArticlesData(topic, sort_by='created_at') {
     // return db.query(
     //     `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.article_img_url, articles.votes, COUNT(comments.body)::INT AS comment_count
     //     FROM articles 
@@ -43,14 +43,25 @@ function allArticlesData(topic) {
     JOIN comments ON articles.article_id = comments.article_id `;
 
     if(topic) {
-        baseQueryStr += `WHERE articles.topic ILIKE $1 `;
         queryStrArr.push(topic);
+       // baseQueryStr += `WHERE articles.topic ILIKE $1 `;
+        baseQueryStr = baseQueryStr + format(`WHERE articles.topic ILIKE %L `, [topic])
     }
-    baseQueryStr += `
-    GROUP BY articles.article_id
-    ORDER BY articles.created_at DESC `;
 
-    return db.query(baseQueryStr,queryStrArr)
+    baseQueryStr += `
+    GROUP BY articles.article_id `
+
+    if(sort_by) {
+        queryStrArr.push(sort_by);
+        //baseQueryStr += `ORDER BY articles.created_at DESC `;
+        baseQueryStr = baseQueryStr + format(`ORDER BY articles.%s DESC `,[sort_by])
+        
+    }
+    // baseQueryStr += `
+    // GROUP BY articles.article_id
+    // ORDER BY articles.created_at DESC `;
+
+    return db.query(baseQueryStr)
     .then(({rows}) => {
         if(!rows.length) {
             return Promise.reject({status: 404, msg: 'Not Found'})
