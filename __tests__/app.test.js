@@ -68,7 +68,7 @@ describe('App Tests', () => {
                 expect(article).toMatchObject(expectedObject);
             })
         })
-        describe('Added Feature: `/api/articles/:article_id` tests', () => {
+        describe('Added Feature: GET `/api/articles/:article_id` tests', () => {
             test('added comment_count to articles which is the total count of all the comments with the article_id requested', () => {
                 return request(app)
                 .get('/api/articles/1')
