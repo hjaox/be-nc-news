@@ -33,11 +33,12 @@ function allArticlesData(topic, sort_by='created_at', order) {
     let baseQueryStr = `
     SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.article_img_url, articles.votes, COUNT(comments.body)::INT AS comment_count
     FROM articles 
-    JOIN comments ON articles.article_id = comments.article_id `;
+    JOIN comments ON articles.article_id = comments.article_id
+    JOIN topics ON topics.slug = articles.topic `;
 
     if(topic) {
         queryStrArr.push(topic);
-        baseQueryStr = baseQueryStr + format(`WHERE articles.topic ILIKE %L `, [topic]);
+        baseQueryStr = baseQueryStr + format(`WHERE topics.slug ILIKE %L `, [topic]);
     }
         
     baseQueryStr = baseQueryStr + format(`

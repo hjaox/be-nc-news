@@ -102,7 +102,7 @@ describe('App Tests', () => {
                 return request(app)
                 .get('/api/articles?topic=mitch')
                 .then(({body: {articles}}) => {
-                    expect(articles.length).not.toBe(0);
+                    expect(articles.length).toBe(4);
                     articles.forEach(article => {
                         expect(article.topic).toBe('mitch');
                     })
@@ -112,26 +112,25 @@ describe('App Tests', () => {
                 return request(app)
                 .get('/api/articles?topic=MiTcH')
                 .then(({body: {articles}}) => {
-                    expect(articles.length).not.toBe(0);
+                    expect(articles.length).toBe(4);
                     articles.forEach(article => {                        
-                        expect(article.topic).toMatch(/MiTcH/i);
+                        expect(article.topic).toBe('mitch');
                     })
                 })
-            })
+            })            
             test('sort_by query: sorts the articles by any valid column(defaults to created_at)', () => {
                 return request(app)
                 .get('/api/articles?sort_by=title')
                 .then(({body: {articles}})=> {
-                    expect(articles.length).not.toBe(0);
+                    expect(articles.length).toBe(5);
                     expect(articles).toBeSortedBy('title', {descending: true});
-                    expect(articles).toEqual(articles.sort((a,b) => b.title - a.title));                    
                 })
             })
             test('sort_by query: sorts the articles by any valid column paired with topic query', () => {
                 return request(app)
                 .get('/api/articles?topic=mitch&sort_by=title')
                 .then(({body: {articles}})=> {
-                    expect(articles.length).not.toBe(0);
+                    expect(articles.length).toBe(4);
                     expect(articles).toBeSortedBy('title', {descending: true});
                     
                     articles.forEach(article => {
@@ -143,27 +142,24 @@ describe('App Tests', () => {
                 return request(app)
                 .get('/api/articles?sort_by=article_id&order=asc')
                 .then(({body: {articles}})=> {
-                    expect(articles.length).not.toBe(0);
-                    expect(articles).toBeSortedBy('article_id', {ascending: true});
-                    expect(articles).toEqual(articles.sort((a,b) => b.article_id - a.article_id));
+                    expect(articles.length).toBe(5);
+                    expect(articles).toBeSortedBy('article_id', {descending: false});
                 })
             })
             test('order query: can be set to desc for descending', () => {
                 return request(app)
                 .get('/api/articles?sort_by=article_id&order=desc')
                 .then(({body: {articles}})=> {
-                    expect(articles.length).not.toBe(0);
+                    expect(articles.length).toBe(5);
                     expect(articles).toBeSortedBy('article_id', {descending: true});
-                    expect(articles).toEqual(articles.sort((a,b) => a.article_id - b.article_id));
                 })
             })
             test('order query: defaults to descending', () => {
                 return request(app)
                 .get('/api/articles?sort_by=article_id')
                 .then(({body: {articles}})=> {
-                    expect(articles.length).not.toBe(0);
+                    expect(articles.length).toBe(5);
                     expect(articles).toBeSortedBy('article_id', {descending: true});
-                    expect(articles).toEqual(articles.sort((a,b) => a.article_id - b.article_id));
                 })
             })
         })
@@ -469,6 +465,14 @@ describe('App Tests', () => {
                     .expect(400)
                     .then(({body: {msg}}) => {
                         expect(msg).toBe('Bad Request')
+                    })
+                })
+                test('topic query: returns status code 404 if the request has no articles on an existing topic', () => {
+                    return request(app)
+                    .get('/api/articles?topic=paper')
+                    .expect(404)
+                    .then(({body: {msg}}) => {
+                        expect(msg).toBe('Not Found')
                     })
                 })
             })
