@@ -205,7 +205,7 @@ describe('PATCH `/api/articles/:article_id', () => {
     })
 })
 describe('DELETE `/api/comments/:comment_id`',() => {
-    test('204: returns status code 204 upon successful deletion and no content', () => {
+    test('204: returns status code 204 upon successful deletion', () => {
         return request(app)
         .delete('/api/comments/1')
         .expect(204);
@@ -324,7 +324,7 @@ describe('Error handling tests', () => {
                 expect(msg).toBe('Bad Request')
             });
         })
-        test('400: returns status code 400 when sent with a valid but non-existent id request', () => {
+        test('404: returns status code 404 when sent with a valid but non-existent id request', () => {
             return request(app)
             .delete('/api/comments/9999')
             .expect(404)
