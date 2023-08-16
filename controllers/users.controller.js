@@ -1,9 +1,12 @@
 const {selectAllUsers} = require('../models/users.model')
 
-function getAllUsers(_, response) {
+function getAllUsers(_, response, next) {
     selectAllUsers()
-    .then(allUsers => {
-        response.status(200).send({allUsers})
+    .then(users => {
+        response.status(200).send({users})
+    })
+    .catch((err) => {
+        next(err)
     })
 }
 

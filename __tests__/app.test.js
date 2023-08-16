@@ -232,8 +232,8 @@ describe('GET `/api/users` tests',() => {
 
         return request(app)
         .get('/api/users')
-        .then(({body: {allUsers}}) => {
-            allUsers.forEach(user => {
+        .then(({body: {users}}) => {
+            users.forEach(user => {
                 expect(user).toMatchObject(expectedObject);
             })
         })
@@ -351,6 +351,27 @@ describe('Error handling tests', () => {
             .expect(404)
             .then(({body: {msg}}) => {
                 expect(msg).toBe('Not Found')
+            })
+        })
+    })
+    describe('GET `/api/users` errors', () => {
+        test('404: returns status code 404 if users data does not exist', () => {
+            
+            return db
+            .query(`DROP TABLE IF EXISTS comments`)
+            .then(() => {
+                return db.query(`DROP TABLE IF EXISTS articles`)
+            })
+            .then(() => {
+                return db.query(`DROP TABLE IF EXISTS users`)
+            })            
+            .then(() => {
+                return request(app)
+                .get('/api/users')
+                .expect(404)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Not Found')
+                })
             })
         })
     })
