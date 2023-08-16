@@ -64,7 +64,26 @@ describe('App Tests', () => {
             return request(app)
             .get('/api/articles/1')
             .then(({body: {article}}) => {
+                expect(article.length).not.toBe(0);
                 expect(article).toMatchObject(expectedObject);
+            })
+        })
+        describe('Added Feature: `/api/articles/:article_id` tests', () => {
+            test('added comment_count to articles which is the total count of all the comments with the article_id requested', () => {
+                return request(app)
+                .get('/api/articles/1')
+                .then(({body: {article}}) => {
+                    expect(article.length).not.toBe(0);
+                    expect(article).toHaveProperty('comment_count', 11);
+                })
+            })
+            test('returns an 0 when an article has no comments', () => {
+                return request(app)
+                .get('/api/articles/2')
+                .then(({body: {article}}) => {
+                    expect(article.length).not.toBe(0);
+                    expect(article).toHaveProperty('comment_count', 0);
+                })
             })
         })
     })
