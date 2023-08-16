@@ -186,7 +186,6 @@ describe('PATCH `/api/articles/:article_id', () => {
         })
     })
     test('200:returns the updated article upon successful patch request(decrementing votes)', () => {
-
         return request(app)
         .patch('/api/articles/1')
         .send({inc_votes:-100})
@@ -215,6 +214,29 @@ describe('DELETE `/api/comments/:comment_id`',() => {
         .delete('/api/comments/1')
         .then(({body}) => {
             expect(body).toEqual({})
+        })
+    })
+})
+describe('GET `/api/users` tests',() => {
+    test('200: returns status code 200 upon successful request', () => {
+        return request(app)
+        .get('/api/users')
+        .expect(200);
+    })
+    test('200: returns an array of objects with certain properties', () => {
+        const expectedObject = {
+            username: expect.any(String),
+            name: expect.any(String),
+            avatar_url: expect.any(String)
+        }
+
+        return request(app)
+        .get('/api/users')
+        .then(({body: {users}}) => {
+            expect(users.length).not.toBe(0);
+            users.forEach(user => {
+                expect(user).toMatchObject(expectedObject);
+            })
         })
     })
 })
@@ -330,6 +352,27 @@ describe('Error handling tests', () => {
             .expect(404)
             .then(({body: {msg}}) => {
                 expect(msg).toBe('Not Found')
+            })
+        })
+    })
+    describe('GET `/api/users` errors', () => {
+        test('404: returns status code 404 if users data does not exist', () => {
+            
+            return db
+            .query(`DROP TABLE IF EXISTS comments`)
+            .then(() => {
+                return db.query(`DROP TABLE IF EXISTS articles`)
+            })
+            .then(() => {
+                return db.query(`DROP TABLE IF EXISTS users`)
+            })            
+            .then(() => {
+                return request(app)
+                .get('/api/users')
+                .expect(404)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Not Found')
+                })
             })
         })
     })
