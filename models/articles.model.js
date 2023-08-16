@@ -1,3 +1,4 @@
+const e = require('express');
 const db = require('../db/connection')
 const format = require('pg-format')
 
@@ -27,15 +28,7 @@ function selectCommentsByArticleId(article_id) {
     })
 }
 
-function allArticlesData(topic, sort_by='created_at') {
-    // return db.query(
-    //     `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.article_img_url, articles.votes, COUNT(comments.body)::INT AS comment_count
-    //     FROM articles 
-    //     JOIN comments ON articles.article_id = comments.article_id
-    //     WHERE articles.topic LIKE $1
-    //     GROUP BY articles.article_id
-    //     ORDER BY articles.created_at DESC
-    //     `, ['mitch'])
+function allArticlesData(topic, sort_by='created_at', order) {
     const queryStrArr = [];
     let baseQueryStr = `
     SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.article_img_url, articles.votes, COUNT(comments.body)::INT AS comment_count
@@ -44,22 +37,24 @@ function allArticlesData(topic, sort_by='created_at') {
 
     if(topic) {
         queryStrArr.push(topic);
-       // baseQueryStr += `WHERE articles.topic ILIKE $1 `;
-        baseQueryStr = baseQueryStr + format(`WHERE articles.topic ILIKE %L `, [topic])
+        baseQueryStr = baseQueryStr + format(`WHERE articles.topic ILIKE %L `, [topic]);
     }
-
-    baseQueryStr += `
-    GROUP BY articles.article_id `
-
-    if(sort_by) {
-        queryStrArr.push(sort_by);
-        //baseQueryStr += `ORDER BY articles.created_at DESC `;
-        baseQueryStr = baseQueryStr + format(`ORDER BY articles.%s DESC `,[sort_by])
         
+    baseQueryStr = baseQueryStr + format(`
+    GROUP BY articles.article_id
+    ORDER BY articles.%s `,[sort_by]);
+            
+    if(order) {
+        if(!/(asc|desc)/i.test(order)) {
+            return Promise.reject({status:400, msg: 'Bad Request'});
+        } else if(order === 'asc') {
+            baseQueryStr += `ASC `;
+        } else {
+            baseQueryStr += `DESC `;
+        }
+    } else {
+        baseQueryStr += `DESC `;
     }
-    // baseQueryStr += `
-    // GROUP BY articles.article_id
-    // ORDER BY articles.created_at DESC `;
 
     return db.query(baseQueryStr)
     .then(({rows}) => {

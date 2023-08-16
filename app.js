@@ -8,6 +8,8 @@ const {getArticleById,
     getCommentsByArticleId, postComment,
     patchArticleById} = require('./controllers/articles.controller')
 const {getAllEndpoints} = require('./controllers/endpoints.controller')
+const {deleteCommentById} = require('./controllers/comments.controller')
+const {getAllUsers} = require('./controllers/users.controller')
 
 const app = express();
 
@@ -23,10 +25,13 @@ app.get('/api/articles', getAllArticlesData)
 
 app.get('/api/articles/:article_id/comments', getCommentsByArticleId)
 
+app.get('/api/users', getAllUsers)
+
 app.post('/api/articles/:article_id/comments', postComment)
 
 app.patch('/api/articles/:article_id', patchArticleById)
 
+app.delete('/api/comments/:comment_id', deleteCommentById)
 
 app.use(psqlErrorHandler)
 app.use(customErrorHandler)

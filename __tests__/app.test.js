@@ -97,11 +97,12 @@ describe('App Tests', () => {
                 })
             })
         })
-        describe.only('Added Feature: GET `/api/articles` test', () => {
+        describe('Added Feature: GET `/api/articles` test', () => {
             test('topic query: filters the articles by topic value specified in the query.', () => {
                 return request(app)
                 .get('/api/articles?topic=mitch')
                 .then(({body: {articles}}) => {
+                    expect(articles.length).not.toBe(0);
                     articles.forEach(article => {
                         expect(article.topic).toBe('mitch');
                     })
@@ -111,6 +112,7 @@ describe('App Tests', () => {
                 return request(app)
                 .get('/api/articles?topic=MiTcH')
                 .then(({body: {articles}}) => {
+                    expect(articles.length).not.toBe(0);
                     articles.forEach(article => {                        
                         expect(article.topic).toMatch(/MiTcH/i);
                     })
@@ -120,6 +122,7 @@ describe('App Tests', () => {
                 return request(app)
                 .get('/api/articles?sort_by=title')
                 .then(({body: {articles}})=> {
+                    expect(articles.length).not.toBe(0);
                     expect(articles).toBeSortedBy('title', {descending: true});
                     expect(articles).toEqual(articles.sort((a,b) => b.title - a.title));                    
                 })
@@ -128,6 +131,7 @@ describe('App Tests', () => {
                 return request(app)
                 .get('/api/articles?topic=mitch&sort_by=title')
                 .then(({body: {articles}})=> {
+                    expect(articles.length).not.toBe(0);
                     expect(articles).toBeSortedBy('title', {descending: true});
                     
                     articles.forEach(article => {
@@ -135,13 +139,31 @@ describe('App Tests', () => {
                     })
                 })
             })
-            test('order query: can be set to asc or desc for ascending or descending(defaults to descending)', () => {
-                // return request(app)
-                // .get('/api/articles?sort_by=article_id&order=asc')
-                // .then(({body: {articles}})=> {
-                //     expect(articles).toBeSortedBy('article_id', {ascending: true});
-                //     expect(articles).toEqual('article_id', {ascending: true});
-                //     })
+            test('order query: can be set to asc for ascending', () => {
+                return request(app)
+                .get('/api/articles?sort_by=article_id&order=asc')
+                .then(({body: {articles}})=> {
+                    expect(articles.length).not.toBe(0);
+                    expect(articles).toBeSortedBy('article_id', {ascending: true});
+                    expect(articles).toEqual(articles.sort((a,b) => b.article_id - a.article_id));
+                })
+            })
+            test('order query: can be set to desc for descending', () => {
+                return request(app)
+                .get('/api/articles?sort_by=article_id&order=desc')
+                .then(({body: {articles}})=> {
+                    expect(articles.length).not.toBe(0);
+                    expect(articles).toBeSortedBy('article_id', {descending: true});
+                    expect(articles).toEqual(articles.sort((a,b) => a.article_id - b.article_id));
+                })
+            })
+            test('order query: defaults to descending', () => {
+                return request(app)
+                .get('/api/articles?sort_by=article_id')
+                .then(({body: {articles}})=> {
+                    expect(articles.length).not.toBe(0);
+                    expect(articles).toBeSortedBy('article_id', {descending: true});
+                    expect(articles).toEqual(articles.sort((a,b) => a.article_id - b.article_id));
                 })
             })
         })
@@ -181,190 +203,273 @@ describe('App Tests', () => {
                 expect(comments).toEqual([]);
             })
         })
-    })  
-
-describe('POST `/api/articles/:article_id/comments` tests', () => {
-    test('201: returns status code 201 upon successful POST request', () => {
-        return request(app)
-        .post('/api/articles/1/comments')
-        .send({body: 'test body', author: 'lurker'})
-        .expect(201);
     })
-    test('201: responds with the posted comment with the required properties', () => {
-        const expectedObject = {
-            body: 'test body',
-            author: 'lurker',
-            votes: 0,
-            created_at: expect.any(String),
-            article_id: 1,
-            comment_id: expect.any(Number)
-        }
-
-        return request(app)
-        .post('/api/articles/1/comments')
-        .send({body: 'test body', author: 'lurker'})
-        .then(({body: {postedComment}}) => {
-            expect(postedComment).toMatchObject(expectedObject);
-        });
-    })
-})
-describe('PATCH `/api/articles/:article_id', () => {
-    test('200:returns status code 200 upon successful patch request', () => {
-        return request(app)
-        .patch('/api/articles/1')
-        .send({inc_votes:999})
-        .expect(200);
-    })
-    test('200:returns the updated article upon successful patch request(incrementing votes)', () => {
-        const expectedObject = {
-            author: 'butter_bridge',
-            title:  'Living in the shadow of a great man',
-            body: 'I find this existence challenging',
-            topic: 'mitch',
-            created_at: '2020-07-09T20:11:00.000Z',
-            votes: 1099,
-            article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
-        };
-
-        return request(app)
-        .patch('/api/articles/1')
-        .send({inc_votes:999})
-        .then(({body: {updatedArticle}}) => {
-            expect(updatedArticle).toMatchObject(expectedObject);
-        })
-    })
-    test('200:returns the updated article upon successful patch request(decrementing votes)', () => {
-
-        return request(app)
-        .patch('/api/articles/1')
-        .send({inc_votes:-100})
-        .then(({body: {updatedArticle}}) => {
-            expect(updatedArticle.votes).toEqual(0);
-        })
-    })
-    test('200: returns status code 200 when sent with a valid and existing article id even if the body send have multiple properties(which will be ignored) as long as it contains the required property(inc_votes)', () => { //<---
-        return request(app)
-        .patch('/api/articles/1')
-        .send({test: 'test', inc_votes:999})
-        .then(({body: {updatedArticle}}) => {
-            expect(updatedArticle.votes).toEqual(1099);
-            expect(updatedArticle).not.toHaveProperty('test');
-        })
-    })
-})
-
-describe('Error handling tests', () => {
-    describe('GET `/api/articles/:article_id` errors', () => {
-        test('400: returns status code 400 when sent with an invalid request', () => {
+    describe('POST `/api/articles/:article_id/comments` tests', () => {
+        test('201: returns status code 201 upon successful POST request', () => {
             return request(app)
-            .get('/api/articles/test')
-            .expect(400)
-            .then(({body: {msg}}) => {
-                expect(msg).toBe('Bad Request')
-            });
-        })
-        test('400: returns status code 400 when sent with a valid but non-existent id request', () => {
-            return request(app)
-            .get('/api/articles/9999')
-            .expect(404)
-            .then(({body: {msg}}) => {
-                expect(msg).toBe('Not Found')
-            })
-        })
-    })
-    describe('GET `/api/articles/:article_id/comments` errors', () => {
-        test('400: returns status code 400 when sent with an invalid request', () => {
-            return request(app)
-            .get('/api/articles/test/comments')
-            .expect(400)
-            .then(({body: {msg}}) => {
-                expect(msg).toBe('Bad Request')
-            });
-        })
-        test('404: returns status code 404 when sent with a valid but non-existent id request', () => {
-            return request(app)
-            .get('/api/articles/9999/comments')
-            .expect(404)
-            .then(({body: {msg}}) => {
-                expect(msg).toBe('Not Found')
-            })
-        })
-    })
-    describe('POST `/api/articles/:article_id/comments` errors', () => {
-        test('400: returns status code 400 when sent with an invalid request', () => {
-            return request(app)
-            .post('/api/articles/test/comments')
+            .post('/api/articles/1/comments')
             .send({body: 'test body', author: 'lurker'})
-            .expect(400)
-            .then(({body: {msg}}) => {
-                expect(msg).toBe('Bad Request')
-            });
+            .expect(201);
         })
-        test('400: returns status code 400 when sent with a valid article_id but does not match the required properties of the body', () => {
+        test('201: responds with the posted comment with the required properties', () => {
+            const expectedObject = {
+                body: 'test body',
+                author: 'lurker',
+                votes: 0,
+                created_at: expect.any(String),
+                article_id: 1,
+                comment_id: expect.any(Number)
+            }
+
             return request(app)
-            .post('/api/articles/9999/comments')
-            .send({test: 'test body', author: 'lurker'})
-            .expect(400)
-            .then(({body: {msg}}) => {
-                expect(msg).toBe('Bad Request')
-            })
-        })
-        test('404: returns status code 404 when sent with a valid but non-existent id request', () => {
-            return request(app)
-            .post('/api/articles/9999/comments')
+            .post('/api/articles/1/comments')
             .send({body: 'test body', author: 'lurker'})
-            .expect(404)
-            .then(({body: {msg}}) => {
-                expect(msg).toBe('Not Found')
-            })
+            .then(({body: {postedComment}}) => {
+                expect(postedComment).toMatchObject(expectedObject);
+            });
         })
     })
-    describe('PATCH `/api/articles/:article_id` errors', () => {
-        test('400: returns status code 400 when sent with an invalid request', () => {
-            return request(app)
-            .patch('/api/articles/test')
-            .send({inc_votes:999})
-            .expect(400)
-            .then(({body: {msg}}) => {
-                expect(msg).toBe('Bad Request')
-            });
-        })
-
-        test('400: returns status code 400 when sent with a valid and existing article id but wrong body property', () => {
+    describe('PATCH `/api/articles/:article_id', () => {
+        test('200:returns status code 200 upon successful patch request', () => {
             return request(app)
             .patch('/api/articles/1')
-            .send({test:999})
-            .expect(400)
-            .then(({body: {msg}}) => {
-                expect(msg).toBe('Bad Request')
-            });
-        })
-        test('404: returns status code 404 when sent with a valid but non existing article id', () => {
-            return request(app)
-            .patch('/api/articles/9999')
             .send({inc_votes:999})
-            .expect(404)
-            .then(({body: {msg}}) => {
-                expect(msg).toBe('Not Found')
+            .expect(200);
+        })
+        test('200:returns the updated article upon successful patch request(incrementing votes)', () => {
+            const expectedObject = {
+                author: 'butter_bridge',
+                title:  'Living in the shadow of a great man',
+                body: 'I find this existence challenging',
+                topic: 'mitch',
+                created_at: '2020-07-09T20:11:00.000Z',
+                votes: 1099,
+                article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+            };
+
+            return request(app)
+            .patch('/api/articles/1')
+            .send({inc_votes:999})
+            .then(({body: {updatedArticle}}) => {
+                expect(updatedArticle).toMatchObject(expectedObject);
+            })
+        })
+        test('200:returns the updated article upon successful patch request(decrementing votes)', () => {
+            return request(app)
+            .patch('/api/articles/1')
+            .send({inc_votes:-100})
+            .then(({body: {updatedArticle}}) => {
+                expect(updatedArticle.votes).toEqual(0);
+            })
+        })
+        test('200: returns status code 200 when sent with a valid and existing article id even if the body send have multiple properties(which will be ignored) as long as it contains the required property(inc_votes)', () => {
+            return request(app)
+            .patch('/api/articles/1')
+            .send({test: 'test', inc_votes:999})
+            .then(({body: {updatedArticle}}) => {
+                expect(updatedArticle.votes).toEqual(1099);
+                expect(updatedArticle).not.toHaveProperty('test');
             })
         })
     })
-    describe.only('GET `/api/articles`',() => {
-        describe('Features error handling',() => {
-            test('404 topic query: returns status code 404 when requested with a non-existing topic value',() => {
+    describe('DELETE `/api/comments/:comment_id`',() => {
+        test('204: returns status code 204 upon successful deletion', () => {
+            return request(app)
+            .delete('/api/comments/1')
+            .expect(204);
+        })
+        test('204: returns status code 204 upon successful deletion and no content', () => {
+            return request(app)
+            .delete('/api/comments/1')
+            .then(({body}) => {
+                expect(body).toEqual({})
+            })
+        })
+    })
+    describe('GET `/api/users` tests',() => {
+        test('200: returns status code 200 upon successful request', () => {
+            return request(app)
+            .get('/api/users')
+            .expect(200);
+        })
+        test('200: returns an array of objects with certain properties', () => {
+            const expectedObject = {
+                username: expect.any(String),
+                name: expect.any(String),
+                avatar_url: expect.any(String)
+            }
+
+            return request(app)
+            .get('/api/users')
+            .then(({body: {users}}) => {
+                expect(users.length).not.toBe(0);
+                users.forEach(user => {
+                    expect(user).toMatchObject(expectedObject);
+                })
+            })
+        })
+    })
+
+    describe('Error handling tests', () => {
+        describe('GET `/api/articles/:article_id` errors', () => {
+            test('400: returns status code 400 when sent with an invalid request', () => {
                 return request(app)
-                .get('/api/articles?topic=1234')
+                .get('/api/articles/test')
+                .expect(400)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Bad Request')
+                });
+            })
+            test('400: returns status code 400 when sent with a valid but non-existent id request', () => {
+                return request(app)
+                .get('/api/articles/9999')
                 .expect(404)
                 .then(({body: {msg}}) => {
                     expect(msg).toBe('Not Found')
                 })
             })
-            test('404 sort_by query: returns status code 404 when requested with a non existing column to sort by', () => {
+        })
+        describe('GET `/api/articles/:article_id/comments` errors', () => {
+            test('400: returns status code 400 when sent with an invalid request', () => {
                 return request(app)
-                .get('/api/articles?sort_by=1234')
+                .get('/api/articles/test/comments')
+                .expect(400)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Bad Request')
+                });
+            })
+            test('404: returns status code 404 when sent with a valid but non-existent id request', () => {
+                return request(app)
+                .get('/api/articles/9999/comments')
                 .expect(404)
                 .then(({body: {msg}}) => {
                     expect(msg).toBe('Not Found')
+                })
+            })
+        })
+        describe('POST `/api/articles/:article_id/comments` errors', () => {
+            test('400: returns status code 400 when sent with an invalid request', () => {
+                return request(app)
+                .post('/api/articles/test/comments')
+                .send({body: 'test body', author: 'lurker'})
+                .expect(400)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Bad Request')
+                });
+            })
+            test('400: returns status code 400 when sent with a valid article_id but does not match the required properties of the body', () => {
+                return request(app)
+                .post('/api/articles/9999/comments')
+                .send({test: 'test body', author: 'lurker'})
+                .expect(400)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Bad Request')
+                })
+            })
+            test('404: returns status code 404 when sent with a valid but non-existent id request', () => {
+                return request(app)
+                .post('/api/articles/9999/comments')
+                .send({body: 'test body', author: 'lurker'})
+                .expect(404)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Not Found')
+                })
+            })
+        })
+        describe('PATCH `/api/articles/:article_id` errors', () => {
+            test('400: returns status code 400 when sent with an invalid request', () => {
+                return request(app)
+                .patch('/api/articles/test')
+                .send({inc_votes:999})
+                .expect(400)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Bad Request')
+                });
+            })
+
+            test('400: returns status code 400 when sent with a valid and existing article id but wrong body property', () => {
+                return request(app)
+                .patch('/api/articles/1')
+                .send({test:999})
+                .expect(400)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Bad Request')
+                });
+            })
+            test('404: returns status code 404 when sent with a valid but non existing article id', () => {
+                return request(app)
+                .patch('/api/articles/9999')
+                .send({inc_votes:999})
+                .expect(404)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Not Found')
+                })
+            })
+        })
+        describe('DELETE `/api/comments/:comment_id` errors', () => {
+            test('400: returns status code 400 when sent with an invalid request', () => {
+                return request(app)
+                .delete('/api/comments/test')
+                .expect(400)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Bad Request')
+                });
+            })
+            test('404: returns status code 404 when sent with a valid but non-existent id request', () => {
+                return request(app)
+                .delete('/api/comments/9999')
+                .expect(404)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Not Found')
+                })
+            })
+        })
+        describe('GET `/api/users` errors', () => {
+            test('404: returns status code 404 if users data does not exist', () => {
+                
+                return db
+                .query(`DROP TABLE IF EXISTS comments`)
+                .then(() => {
+                    return db.query(`DROP TABLE IF EXISTS articles`)
+                })
+                .then(() => {
+                    return db.query(`DROP TABLE IF EXISTS users`)
+                })            
+                .then(() => {
+                    return request(app)
+                    .get('/api/users')
+                    .expect(404)
+                    .then(({body: {msg}}) => {
+                        expect(msg).toBe('Not Found')
+                    })
+                })
+            })
+        })
+        describe('GET `/api/articles`',() => {
+            describe('Features error handling',() => {
+                test('404 topic query: returns status code 404 when requested with a non-existing topic value',() => {
+                    return request(app)
+                    .get('/api/articles?topic=1234')
+                    .expect(404)
+                    .then(({body: {msg}}) => {
+                        expect(msg).toBe('Not Found')
+                    })
+                })
+                test('404 sort_by query: returns status code 404 when requested with a non existing column to sort by', () => {
+                    return request(app)
+                    .get('/api/articles?sort_by=1234')
+                    .expect(404)
+                    .then(({body: {msg}}) => {
+                        expect(msg).toBe('Not Found')
+                    })
+                })
+                test('400 order query: returns status code 400 when requested with order value of neither asc or desc', () => {
+                    return request(app)
+                    .get('/api/articles?sort_by=article_id&order=test')
+                    .expect(400)
+                    .then(({body: {msg}}) => {
+                        expect(msg).toBe('Bad Request')
+                    })
                 })
             })
         })
