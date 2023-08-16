@@ -204,6 +204,20 @@ describe('PATCH `/api/articles/:article_id', () => {
         })
     })
 })
+describe('DELETE `/api/comments/:comment_id`',() => {
+    test('204: returns status code 204 upon successful deletion', () => {
+        return request(app)
+        .delete('/api/comments/1')
+        .expect(204);
+    })
+    test('204: returns status code 204 upon successful deletion and no content', () => {
+        return request(app)
+        .delete('/api/comments/1')
+        .then(({body}) => {
+            expect(body).toEqual({})
+        })
+    })
+})
 
 describe('Error handling tests', () => {
     describe('GET `/api/articles/:article_id` errors', () => {
@@ -295,6 +309,24 @@ describe('Error handling tests', () => {
             return request(app)
             .patch('/api/articles/9999')
             .send({inc_votes:999})
+            .expect(404)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('Not Found')
+            })
+        })
+    })
+    describe('DELETE `/api/comments/:comment_id` errors', () => {
+        test('400: returns status code 400 when sent with an invalid request', () => {
+            return request(app)
+            .delete('/api/comments/test')
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('Bad Request')
+            });
+        })
+        test('404: returns status code 404 when sent with a valid but non-existent id request', () => {
+            return request(app)
+            .delete('/api/comments/9999')
             .expect(404)
             .then(({body: {msg}}) => {
                 expect(msg).toBe('Not Found')
