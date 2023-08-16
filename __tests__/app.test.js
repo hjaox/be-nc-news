@@ -116,7 +116,7 @@ describe('App Tests', () => {
                     })
                 })
             })
-            test('sort_by query: sorts the articles by any valid column', () => {
+            test('sort_by query: sorts the articles by any valid column(defaults to created_at)', () => {
                 return request(app)
                 .get('/api/articles?sort_by=title')
                 .then(({body: {articles}})=> {
@@ -134,6 +134,9 @@ describe('App Tests', () => {
                         expect(article.topic).toBe('mitch');
                     })
                 })
+            })
+            test('order query: can be set to asc or desc for ascending or descending(defaults to descending)', () => {
+
             })
         })
     })
