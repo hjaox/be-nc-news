@@ -74,7 +74,7 @@ describe('App Tests', () => {
             .get('/api/articles')
             .expect(200);
         })
-        test('200: returns all articles data with certain properties upon successful request', () => {
+        test('200: returns all articles data with certain properties upon successful request sorted by date in descending order', () => {
             const toMatchObject = {
                 author: expect.any(String),
                 title: expect.any(String),
@@ -94,6 +94,41 @@ describe('App Tests', () => {
                 
                 articles.forEach(article => {
                     expect(article).toMatchObject(toMatchObject);
+                })
+            })
+        })
+        describe.only('Added Feature: GET `/api/articles` test', () => {
+            test('topic query: filters the articles by topic value specified in the query.', () => {
+                return request(app)
+                .get('/api/articles?topic=mitch')
+                .then(({body: {articles}}) => {
+                    articles.forEach(article => {
+                        expect(article.topic).toBe('mitch');
+                    })
+                })
+            })
+            test('topic query: filters the articles by topic value specified in the query and is not case-sensitive.', () => {
+                return request(app)
+                .get('/api/articles?topic=MiTcH')
+                .then(({body: {articles}}) => {
+                    articles.forEach(article => {                        
+                        expect(article.topic).toMatch(/MiTcH/i);
+                    })
+                })
+            })
+            test('sort_by query: sorts the articles by any valid column', () => {
+                return request(app)
+                .get('/api/articles?topic=mitch&sort_by=title')
+                .then(({body: {articles}})=> {
+                    expect(articles).toBeSortedBy('title', {descending: true});
+                    expect(articles).toEqual(articles.sort((a,b) => b.title - a.title));
+                })
+            })
+            test('sort_by query: sorts the articles by any valid column', () => {
+                return request(app)
+                .get('/api/articles?topic=mitch&sort_by=title')
+                .then(({body: {articles}})=> {
+                    expect(articles).toBeSortedBy('title', {descending: true})
                 })
             })
         })
@@ -298,6 +333,26 @@ describe('Error handling tests', () => {
             .expect(404)
             .then(({body: {msg}}) => {
                 expect(msg).toBe('Not Found')
+            })
+        })
+    })
+    describe.only('GET `/api/articles`',() => {
+        describe('Features error handling',() => {
+            test('404 topic query: returns status code 404 when requested with a non-existing topic value',() => {
+                return request(app)
+                .get('/api/articles?topic=1234')
+                .expect(404)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Not Found')
+                })
+            })
+            test('404 sort_by query: returns status code 404 when requested with a non existing column to sort by', () => {
+                return request(app)
+                .get('/api/articles?sort_by=1234')
+                .expect(404)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Not Found')
+                })
             })
         })
     })

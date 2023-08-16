@@ -27,15 +27,34 @@ function selectCommentsByArticleId(article_id) {
     })
 }
 
-function allArticlesData() {
-    return db.query(
-        `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.article_img_url, articles.votes, COUNT(comments.body)::INT AS comment_count
-        FROM articles 
-        JOIN comments ON articles.article_id = comments.article_id
-        GROUP BY articles.article_id
-        ORDER BY articles.created_at DESC`)
+function allArticlesData(topic) {
+    // return db.query(
+    //     `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.article_img_url, articles.votes, COUNT(comments.body)::INT AS comment_count
+    //     FROM articles 
+    //     JOIN comments ON articles.article_id = comments.article_id
+    //     WHERE articles.topic LIKE $1
+    //     GROUP BY articles.article_id
+    //     ORDER BY articles.created_at DESC
+    //     `, ['mitch'])
+    const queryStrArr = [];
+    let baseQueryStr = `
+    SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.article_img_url, articles.votes, COUNT(comments.body)::INT AS comment_count
+    FROM articles 
+    JOIN comments ON articles.article_id = comments.article_id `;
 
+    if(topic) {
+        baseQueryStr += `WHERE articles.topic ILIKE $1 `;
+        queryStrArr.push(topic);
+    }
+    baseQueryStr += `
+    GROUP BY articles.article_id
+    ORDER BY articles.created_at DESC `;
+
+    return db.query(baseQueryStr,queryStrArr)
     .then(({rows}) => {
+        if(!rows.length) {
+            return Promise.reject({status: 404, msg: 'Not Found'})
+        }
         return rows
     })
 }
