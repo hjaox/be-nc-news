@@ -136,7 +136,13 @@ describe('App Tests', () => {
                 })
             })
             test('order query: can be set to asc or desc for ascending or descending(defaults to descending)', () => {
-
+                // return request(app)
+                // .get('/api/articles?sort_by=article_id&order=asc')
+                // .then(({body: {articles}})=> {
+                //     expect(articles).toBeSortedBy('article_id', {ascending: true});
+                //     expect(articles).toEqual('article_id', {ascending: true});
+                //     })
+                })
             })
         })
     })
@@ -176,7 +182,7 @@ describe('App Tests', () => {
             })
         })
     })  
-})
+
 describe('POST `/api/articles/:article_id/comments` tests', () => {
     test('201: returns status code 201 upon successful POST request', () => {
         return request(app)
