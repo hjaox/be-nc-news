@@ -1,7 +1,7 @@
 function psqlErrorHandler(err, _, response, next) {    
     if(err.code === '22P02' || err.code === '23502') {
         response.status(400).send({msg: 'Bad Request'})
-    } else if(err.code === '42P01'){
+    } else if(err.code === '42P01' || err.code === '42601'){
         response.status(404).send({msg: 'Not Found'})
     } else {
         next(err)
