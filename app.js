@@ -30,7 +30,7 @@ app.get('/api/users', getAllUsers)
 
 app.post('/api/articles/:article_id/comments', postComment)
 
-// app.post('api/articles', postArticle)
+app.post('api/articles', postArticle)
 
 app.patch('/api/articles/:article_id', patchArticleById)
 app.delete('/api/comments/:comment_id', deleteCommentById)

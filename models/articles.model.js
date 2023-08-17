@@ -75,4 +75,8 @@ function updateArticle(article_id, article_body) {
     })
 }
 
-module.exports = {selectArticle, allArticlesData, selectCommentsByArticleId, insertComment, updateArticle}
+function insertArticle() {
+    
+}
+
+module.exports = {selectArticle, allArticlesData, selectCommentsByArticleId, insertComment, updateArticle, insertArticle}
