@@ -57,8 +57,8 @@ function patchArticleById(request, response, next) {
     const {article_id} = request.params;
     const {body} = request;
     updateArticle(article_id, body)
-    .then((updatedArticleData) => {
-        response.status(200).send({updatedArticle: updatedArticleData})
+    .then((updatedArticle) => {
+        response.status(200).send({updatedArticle})
     })
     .catch(err => {
         next(err)

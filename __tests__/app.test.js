@@ -344,6 +344,31 @@ describe('App Tests', () => {
             })
         })
     })
+describe('PATCH `/api/comments/:comment_id` tests', () => {
+    test(`200: returns a status code of 200 upon successful request.`, () => {
+        return request(app)
+        .patch(`/api/comments/1`)
+        .send({inc_votes: 10})
+        .expect(200);
+    })
+    test(`200: returns the updated comment(increment)`, () => {
+        const expectedObject = {
+            comment_id: 1,
+            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            votes: 26,
+            author: "butter_bridge",
+            article_id: 9,
+            created_at: "2020-04-06T12:17:00.000Z",
+          };
+
+        return request(app)
+        .patch(`/api/comments/1`)
+        .send({inc_votes: 10})
+        .then(({body:{updatedComment}}) => {
+            expect(updatedComment).toEqual(expectedObject);
+        })
+    })
+})
 
     describe('Error handling tests', () => {
         describe('GET `/api/articles/:article_id` errors', () => {
@@ -524,6 +549,35 @@ describe('App Tests', () => {
                 .then(({body: {msg}}) => {
                     expect(msg).toBe('Not Found')
                 })
+            })
+        })
+    })
+    describe('PATCH `/api/comments/:comment_id` errors', () => {
+        test(`400: returns status code 400 when sent with an invalid comment id`, () => {
+            return request(app)
+            .patch(`/api/comments/test`)
+            .send({inc_votes: 10})
+            .expect(400)
+            .then(({body:{msg}}) => {
+                expect(msg).toEqual(`Bad Request`);
+            })
+        })
+        test(`400: returns status code 400 when sent with an invalid request body`, () => {
+            return request(app)
+            .patch(`/api/comments/1`)
+            .send({test: 10})
+            .expect(400)
+            .then(({body:{msg}}) => {
+                expect(msg).toEqual(`Bad Request`);
+            })
+        })
+        test(`404: returns status code 404 when sent with a valid body and comment_id but non existing comment id`, () => {
+            return request(app)
+            .patch(`/api/comments/999`)
+            .send({inc_votes: 10})
+            .expect(404)
+            .then(({body:{msg}}) => {
+                expect(msg).toEqual(`Not Found`);
             })
         })
     })
