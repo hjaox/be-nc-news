@@ -240,6 +240,23 @@ describe('GET `/api/users` tests',() => {
         })
     })
 })
+describe('POST `/api/articles` tests',() => {
+    test('201: returns status code upon successful post request', ()=> {
+        return request(app)
+        .post('/api/articles')
+        .send({})
+    })
+    test('201: returns the newly posted article', ()=> {
+
+    })
+    test('201: returns the newly posted article', ()=> {
+
+    })
+
+    test('201: returns the newly posted article and will provide a default article_img_url if not provided during request.', ()=> {
+
+    })
+})
 
 describe('Error handling tests', () => {
     describe('GET `/api/articles/:article_id` errors', () => {
