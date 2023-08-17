@@ -66,8 +66,14 @@ function patchArticleById(request, response, next) {
 }
 
 function postArticle(request, response, next) {
-    
-    insertArticle()
+    const {body} = request;
+    insertArticle(body)
+    .then(postedArticle => {
+        response.status(201).send({postedArticle})
+    })
+    .catch(err => {
+        next(err)
+    })
 }
     
 module.exports = {getArticleById, getAllArticlesData, getCommentsByArticleId, postComment, patchArticleById, postArticle}

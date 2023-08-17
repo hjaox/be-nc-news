@@ -75,7 +75,9 @@ function updateArticle(article_id, article_body) {
     })
 }
 
-function insertArticle() {
+function insertArticle(article_body) {
+    // const criteria = ['title', 'topic', 'author', 'body'];
+    // if(!object)
     
 }
 
