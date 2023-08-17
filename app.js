@@ -6,7 +6,8 @@ const {serverErrorHandler,
 const {getArticleById,
     getAllArticlesData,
     getCommentsByArticleId, postComment,
-    patchArticleById} = require('./controllers/articles.controller')
+    patchArticleById,
+    postArticle} = require('./controllers/articles.controller')
 const {getAllEndpoints} = require('./controllers/endpoints.controller')
 const {deleteCommentById} = require('./controllers/comments.controller')
 const {getAllUsers} = require('./controllers/users.controller')
@@ -28,6 +29,8 @@ app.get('/api/articles/:article_id/comments', getCommentsByArticleId)
 app.get('/api/users', getAllUsers)
 
 app.post('/api/articles/:article_id/comments', postComment)
+
+// app.post('api/articles', postArticle)
 
 app.patch('/api/articles/:article_id', patchArticleById)
 app.delete('/api/comments/:comment_id', deleteCommentById)
