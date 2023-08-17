@@ -18,7 +18,6 @@ SOURCE CODE:
                 "pg": "^8.7.3",
                 "pg-format": "^1.0.4"
             devDependencies (for testing purposes)
-                "husky": "^8.0.2",
                 "jest": "^27.5.1",
                 "jest-extended": "^2.0.0",
                 "jest-sorted": "^1.0.14",
