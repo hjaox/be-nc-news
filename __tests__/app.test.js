@@ -64,7 +64,7 @@ describe('App Tests', () => {
             return request(app)
             .get('/api/articles/1')
             .then(({body: {article}}) => {
-                expect(article.length).not.toBe(0);
+                expect(typeof article).toBe('object');
                 expect(article).toMatchObject(expectedObject);
             })
         })
@@ -73,15 +73,15 @@ describe('App Tests', () => {
                 return request(app)
                 .get('/api/articles/1')
                 .then(({body: {article}}) => {
-                    expect(article.length).not.toBe(0);
+                    expect(typeof article).toBe('object');
                     expect(article).toHaveProperty('comment_count', 11);
                 })
             })
-            test('returns an 0 when an article has no comments', () => {
+            test('returns a 0 when an article has no comments', () => {
                 return request(app)
                 .get('/api/articles/2')
                 .then(({body: {article}}) => {
-                    expect(article.length).not.toBe(0);
+                    expect(typeof article).toBe('object');
                     expect(article).toHaveProperty('comment_count', 0);
                 })
             })
