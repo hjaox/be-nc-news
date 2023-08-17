@@ -40,6 +40,7 @@ SOURCE CODE:
                 -to seed your development data into your database.
             Type `npm test`
                 -to run your tests in app.test.js
+                -this seeds test data which is being used for testing
                 
     To access the database:
         -In a testing environment

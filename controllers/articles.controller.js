@@ -3,7 +3,8 @@ const {selectArticle,
     selectCommentsByArticleId,
     insertComment,
     updateArticle,
-    insertArticle} = require('../models/articles.model')
+    insertArticle} = require('../models/articles.model');
+const {selectTopicBySlug,postTopic} = require('../models/topics.model');
 
 function getArticleById(request, response, next) {
     const {article_id} = request.params;
@@ -68,7 +69,23 @@ function patchArticleById(request, response, next) {
 
 function postArticle(request, response, next) {
     const {body} = request;
-    insertArticle(body)
+    const {topic} = request.body
+    
+    const promises = [selectTopicBySlug(topic), insertArticle(body)];
+    return Promise.all(promises)
+    .then(promisesData => {
+        response.status(201).send({postedArticle: promisesData[1]})
+    })
+    .catch(err => {
+        if(err.code === '23503') {            
+            return postTopic({topic})
+        } else {
+            next(err)
+        }
+    })
+    .then(() => {
+        return insertArticle(body)
+    })
     .then(postedArticle => {
         response.status(201).send({postedArticle})
     })

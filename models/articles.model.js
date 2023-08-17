@@ -1,10 +1,9 @@
-const e = require('express');
 const db = require('../db/connection')
 const format = require('pg-format')
 
 function selectArticle(article_id) {
     const queryStr = format(`
-    SELECT articles.*, COUNT(comments.comment_id)::INT AS comment_count FROM articles
+    SELECT articles.*, COALESCE (COUNT(comments.comment_id)::INT, 0) AS comment_count FROM articles
     LEFT JOIN comments on articles.article_id = comments.article_id
     WHERE articles.article_id = %L
     GROUP BY articles.article_id`, [article_id]);
@@ -104,9 +103,22 @@ function updateArticle(article_id, article_body) {
 }
 
 function insertArticle(article_body) {
-    // const criteria = ['title', 'topic', 'author', 'body'];
-    // if(!object)
+    const criteria = ['title', 'topic', 'author', 'body'];
+    if(!criteria.every(item => Object.keys(article_body).includes(item))) {
+        return Promise.reject({status:400, msg: 'Bad Request'})
+    }
     
+    article_body.article_img_url ? article_body.article_img_url : article_body.article_img_url = 'Please provide image url';
+
+    const queryStr = format(`
+    INSERT INTO articles
+    (title, topic, author, body, article_img_url)
+    VALUES %L RETURNING *`,[[article_body.title, article_body.topic, article_body.author,article_body.body, article_body.article_img_url]]);
+    
+    return db.query(queryStr)
+    .then(({rows}) => {
+        return selectArticle(rows[0].article_id)
+    })
 }
 
 module.exports = {selectArticle, allArticlesData, selectCommentsByArticleId, insertComment, updateArticle, insertArticle}
