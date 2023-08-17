@@ -4,8 +4,10 @@ const format = require('pg-format')
 
 function selectArticle(article_id) {
     const queryStr = format(`
-    SELECT * FROM articles
-    WHERE article_id = %L`, [article_id]);
+    SELECT articles.*, COUNT(comments.comment_id)::INT AS comment_count FROM articles
+    LEFT JOIN comments on articles.article_id = comments.article_id
+    WHERE articles.article_id = %L
+    GROUP BY articles.article_id`, [article_id]);
 
     return db.query(queryStr)
     .then(({rows}) => {
