@@ -241,21 +241,67 @@ describe('GET `/api/users` tests',() => {
     })
 })
 describe('POST `/api/articles` tests',() => {
-    test('201: returns status code upon successful post request', ()=> {
-        return request(app)
-        .post('/api/articles')
-        .send({})
-    })
-    test('201: returns the newly posted article', ()=> {
+    // test('201: returns status code upon successful post request', ()=> {
+    //     return request(app)
+    //     .post('/api/articles')
+    //     .send({
+    //         author: 'test1',
+    //         title: 'test2',
+    //         body: 'test3',
+    //         topic: 'mitch',
+    //         article_img_url: 'test4'
+    //     })
+    //     .expect(201);
+    // })
+    // test('201: returns the newly posted article', ()=> {
+    //     const expectedObject = {
+    //         author: 'test1',
+    //         title: 'test2',
+    //         body: 'test3',
+    //         topic: 'mitch',
+    //         created_at: expect.any(String),
+    //         votes: 0,
+    //         article_img_url: 'test4'
+    //     }
 
-    })
-    test('201: returns the newly posted article', ()=> {
+    //     return request(app)
+    //     .post('/api/articles')
+    //     .send({
+    //         author: 'test1',
+    //         title: 'test2',
+    //         body: 'test3',
+    //         topic: 'mitch',
+    //         article_img_url: 'test4'
+    //     })
+    //     .then(({body: {postedComment}}) => {
+    //         expect(postedComment).toEqual(expectedObject)
+    //     });
+    // })
+    // test('201: returns the newly posted article and will provide a default article_img_url if not provided during request.', ()=> {
+    //     const expectedObject = {
+    //         author: 'test1',
+    //         title: 'test2',
+    //         body: 'test3',
+    //         topic: 'mitch',
+    //         created_at: expect.any(String),
+    //         votes: 0,
+    //         article_img_url: 'No image provided'
+    //     }
 
-    })
+    //     return request(app)
+    //     .post('/api/articles')
+    //     .send({
+    //         author: 'test1',
+    //         title: 'test2',
+    //         body: 'test3',
+    //         topic: 'mitch',
+    //         article_img_url: 'test4'
+    //     })
+    //     .then(({body: {postedComment}}) => {
+    //         expect(postedComment).toEqual(expectedObject)
+    //     });
 
-    test('201: returns the newly posted article and will provide a default article_img_url if not provided during request.', ()=> {
-
-    })
+    // })
 })
 
 describe('Error handling tests', () => {
