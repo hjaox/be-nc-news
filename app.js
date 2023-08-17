@@ -4,6 +4,7 @@ const {serverErrorHandler,
     psqlErrorHandler} = require('./error-handlers/error-handlers');
 const {apiRouter} = require('./routers/api.router');
 
+
 const app = express();
 
 app.use(express.json());
