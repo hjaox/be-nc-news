@@ -6,7 +6,7 @@ https://nc-news-ee7w.onrender.com/api
 
 SOURCE CODE:
     To make a local copy of the repository:
-        -On your terminal, got to your desired folder to make a copy of the repository and type `git clone https://github.com/hjaox/be-nc-news.git`. This will make a clone of the repository.
+        -On your terminal, go to your desired folder to make a copy of the repository and type `git clone https://github.com/hjaox/be-nc-news.git`. This will make a clone of the repository.
 
     Requirements:
         Certain dependencies and devDependencies must be installed to be able to run the the code smoothly.
@@ -27,8 +27,10 @@ SOURCE CODE:
         Minimum requirements:
             development environment:
                 node: >=12.0.0
+                psql: >=14.7
             testing environment:
                 node: >=18.0.0
+                psql: >=14.7
 
     Scripts:
         On your terminal:
