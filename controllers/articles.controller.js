@@ -71,20 +71,35 @@ function postArticle(request, response, next) {
     const {body} = request;
     const {topic} = request.body
     
-    const promises = [selectTopicBySlug(topic), insertArticle(body)];
-    return Promise.all(promises)
-    .then(promisesData => {
-        response.status(201).send({postedArticle: promisesData[1]})
-    })
-    .catch(err => {
-        if(err.code === '23503') {            
+    // const promises = [selectTopicBySlug(topic), insertArticle(body)];
+    // return Promise.all(promises)
+    // .then(promisesData => {
+    //     response.status(201).send({postedArticle: promisesData[1]})
+    // })
+    // .catch(err => {
+    //     if(err.code === '23503') {            
+    //         return postTopic({topic})
+    //     } else {
+    //         next(err)
+    //     }
+    // })
+    // .then(() => {
+    //     return insertArticle(body)
+    // })
+    // .then(postedArticle => {
+    //     response.status(201).send({postedArticle})
+    // })
+    // .catch(err => {
+    //     next(err)
+    // })
+    selectTopicBySlug(topic)    
+    .then((topicData) => {
+        if(!topicData) {
             return postTopic({topic})
-        } else {
-            next(err)
-        }
+        }        
     })
     .then(() => {
-        return insertArticle(body)
+        return insertArticle(body) 
     })
     .then(postedArticle => {
         response.status(201).send({postedArticle})
@@ -92,6 +107,6 @@ function postArticle(request, response, next) {
     .catch(err => {
         next(err)
     })
-}
+}   
     
 module.exports = {getArticleById, getAllArticlesData, getCommentsByArticleId, postComment, patchArticleById, postArticle}

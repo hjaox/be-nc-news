@@ -463,9 +463,8 @@ describe('POST `/api/articles` tests',() => {
         });
     })
     test('201: returns the newly posted article even if the topic of the requested body does not exist in the database and will add the new topic to the database', ()=> {
-        console.log('here')
         const expectedObject = {
-            article_id: expect.any(Number), /////<-----------------
+            article_id: 14,
             author: 'butter_bridge',
             title: 'test1',
             body: 'test2',
@@ -485,7 +484,6 @@ describe('POST `/api/articles` tests',() => {
             topic: 'testTopic',
         })
         .then(({body: {postedArticle}}) => {
-            console.log(postedArticle)
             expect(postedArticle).toEqual(expectedObject)
         })
     })
