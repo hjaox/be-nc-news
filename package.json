@@ -6,7 +6,7 @@
   "scripts": {
     "setup-dbs": "psql -f ./db/setup.sql",
     "seed": "node ./db/seeds/run-seed.js",
-    "test-app": "jest app.test.js",
+    "test": "jest app.test.js",
     "test-utils": "jest utils.test.js",
     "prepare": "husky install",
     "start": "node. server-listen.js",
