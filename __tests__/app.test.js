@@ -26,7 +26,6 @@ describe('App Tests', () => {
                 })
             })
         })
-
     })
     describe('GET `/api` tests',() => {
         test('200: returns a status code of 200 upon successful GET request', () => {
@@ -344,150 +343,150 @@ describe('App Tests', () => {
             })
         })
     })
-describe('PATCH `/api/comments/:comment_id` tests', () => {
-    test(`200: returns a status code of 200 upon successful request.`, () => {
-        return request(app)
-        .patch(`/api/comments/1`)
-        .send({inc_votes: 10})
-        .expect(200);
-    })
-    test(`200: returns the updated comment(increment)`, () => {
-        const expectedObject = {
-            comment_id: 1,
-            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
-            votes: 26,
-            author: "butter_bridge",
-            article_id: 9,
-            created_at: "2020-04-06T12:17:00.000Z",
-          };
+    describe('PATCH `/api/comments/:comment_id` tests', () => {
+        test(`200: returns a status code of 200 upon successful request.`, () => {
+            return request(app)
+            .patch(`/api/comments/1`)
+            .send({inc_votes: 10})
+            .expect(200);
+        })
+        test(`200: returns the updated comment(increment)`, () => {
+            const expectedObject = {
+                comment_id: 1,
+                body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+                votes: 26,
+                author: "butter_bridge",
+                article_id: 9,
+                created_at: "2020-04-06T12:17:00.000Z",
+            };
 
-        return request(app)
-        .patch(`/api/comments/1`)
-        .send({inc_votes: 10})
-        .then(({body:{updatedComment}}) => {
-            expect(updatedComment).toEqual(expectedObject);
+            return request(app)
+            .patch(`/api/comments/1`)
+            .send({inc_votes: 10})
+            .then(({body:{updatedComment}}) => {
+                expect(updatedComment).toEqual(expectedObject);
+            })
         })
     })
-})
-describe('POST `/api/articles` tests',() => {
-    test('201: returns status code upon successful post request', ()=> {
-        return request(app)
-        .post('/api/articles')
-        .send({
-            author: 'butter_bridge',
-            title: 'test1',
-            body: 'test2',
-            topic: 'mitch',
-            article_img_url: 'test3',
-            comment_count: 0
+    describe('POST `/api/articles` tests',() => {
+        test('201: returns status code upon successful post request', ()=> {
+            return request(app)
+            .post('/api/articles')
+            .send({
+                author: 'butter_bridge',
+                title: 'test1',
+                body: 'test2',
+                topic: 'mitch',
+                article_img_url: 'test3',
+                comment_count: 0
+            })
+            .expect(201);
         })
-        .expect(201);
-    })
-    test('201: returns the newly posted article', ()=> {
-        const expectedObject = {
-            article_id: 14,
-            author: 'butter_bridge',
-            title: 'test1',
-            body: 'test2',
-            topic: 'mitch',
-            created_at: expect.any(String),
-            votes: 0,
-            article_img_url: 'test3',
-            comment_count: 0
-        }
+        test('201: returns the newly posted article', ()=> {
+            const expectedObject = {
+                article_id: 14,
+                author: 'butter_bridge',
+                title: 'test1',
+                body: 'test2',
+                topic: 'mitch',
+                created_at: expect.any(String),
+                votes: 0,
+                article_img_url: 'test3',
+                comment_count: 0
+            }
 
-        return request(app)
-        .post('/api/articles')
-        .send({
-            author: 'butter_bridge',
-            title: 'test1',
-            body: 'test2',
-            topic: 'mitch',
-            article_img_url: 'test3',
-            comment_count: 0
+            return request(app)
+            .post('/api/articles')
+            .send({
+                author: 'butter_bridge',
+                title: 'test1',
+                body: 'test2',
+                topic: 'mitch',
+                article_img_url: 'test3',
+                comment_count: 0
+            })
+            .then(({body: {postedArticle}}) => {
+                expect(postedArticle).toEqual(expectedObject)
+            });
         })
-        .then(({body: {postedArticle}}) => {
-            expect(postedArticle).toEqual(expectedObject)
-        });
-    })
-    test('201: returns the newly posted article and will provide a default article_img_url if not provided during request.', ()=> {
-        const expectedObject = {
-            article_id: 14,
-            author: 'butter_bridge',
-            title: 'test1',
-            body: 'test2',
-            topic: 'mitch',
-            created_at: expect.any(String),
-            votes: 0,
-            article_img_url: 'Please provide image url',
-            comment_count: 0
-        }
+        test('201: returns the newly posted article and will provide a default article_img_url if not provided during request.', ()=> {
+            const expectedObject = {
+                article_id: 14,
+                author: 'butter_bridge',
+                title: 'test1',
+                body: 'test2',
+                topic: 'mitch',
+                created_at: expect.any(String),
+                votes: 0,
+                article_img_url: 'Please provide image url',
+                comment_count: 0
+            }
 
-        return request(app)
-        .post('/api/articles')
-        .send({
-            author: 'butter_bridge',
-            title: 'test1',
-            body: 'test2',
-            topic: 'mitch'
+            return request(app)
+            .post('/api/articles')
+            .send({
+                author: 'butter_bridge',
+                title: 'test1',
+                body: 'test2',
+                topic: 'mitch'
+            })
+            .then(({body: {postedArticle}}) => {
+                expect(postedArticle).toEqual(expectedObject)
+            });
         })
-        .then(({body: {postedArticle}}) => {
-            expect(postedArticle).toEqual(expectedObject)
-        });
-    })
-    test('201: returns the newly posted article and will ignore other properties the request body have that is not needed.', ()=> {
-        const expectedObject = {
-            article_id: 14,
-            author: 'butter_bridge',
-            title: 'test1',
-            body: 'test2',
-            topic: 'mitch',
-            created_at: expect.any(String),
-            votes: 0,
-            article_img_url: 'Please provide image url',
-            comment_count: 0
-        }
+        test('201: returns the newly posted article and will ignore other properties the request body have that is not needed.', ()=> {
+            const expectedObject = {
+                article_id: 14,
+                author: 'butter_bridge',
+                title: 'test1',
+                body: 'test2',
+                topic: 'mitch',
+                created_at: expect.any(String),
+                votes: 0,
+                article_img_url: 'Please provide image url',
+                comment_count: 0
+            }
 
-        return request(app)
-        .post('/api/articles')
-        .send({
-            author: 'butter_bridge',
-            title: 'test1',
-            body: 'test2',
-            topic: 'mitch',
-            test: 'test',
-            test1: 'test1'
+            return request(app)
+            .post('/api/articles')
+            .send({
+                author: 'butter_bridge',
+                title: 'test1',
+                body: 'test2',
+                topic: 'mitch',
+                test: 'test',
+                test1: 'test1'
+            })
+            .then(({body: {postedArticle}}) => {
+                expect(postedArticle).toEqual(expectedObject)
+            });
         })
-        .then(({body: {postedArticle}}) => {
-            expect(postedArticle).toEqual(expectedObject)
-        });
-    })
-    test('201: returns the newly posted article even if the topic of the requested body does not exist in the database and will add the new topic to the database', ()=> {
-        const expectedObject = {
-            article_id: 14,
-            author: 'butter_bridge',
-            title: 'test1',
-            body: 'test2',
-            topic: 'testTopic',
-            created_at: expect.any(String),
-            votes: 0,
-            article_img_url: 'Please provide image url',
-            comment_count: 0
-        }
+        test('201: returns the newly posted article even if the topic of the requested body does not exist in the database and will add the new topic to the database', ()=> {
+            const expectedObject = {
+                article_id: 14,
+                author: 'butter_bridge',
+                title: 'test1',
+                body: 'test2',
+                topic: 'testTopic',
+                created_at: expect.any(String),
+                votes: 0,
+                article_img_url: 'Please provide image url',
+                comment_count: 0
+            }
 
-        return request(app)
-        .post('/api/articles')
-        .send({
-            author: 'butter_bridge',
-            title: 'test1',
-            body: 'test2',
-            topic: 'testTopic',
-        })
-        .then(({body: {postedArticle}}) => {
-            expect(postedArticle).toEqual(expectedObject)
+            return request(app)
+            .post('/api/articles')
+            .send({
+                author: 'butter_bridge',
+                title: 'test1',
+                body: 'test2',
+                topic: 'testTopic',
+            })
+            .then(({body: {postedArticle}}) => {
+                expect(postedArticle).toEqual(expectedObject)
+            })
         })
     })
-})
 
     describe('Error handling tests', () => {
         describe('GET `/api/articles/:article_id` errors', () => {
