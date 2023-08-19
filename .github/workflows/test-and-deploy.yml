@@ -20,5 +20,11 @@ jobs:
                 uses: actions/checkout@v3
             -   name: install dependencies
                 run: npm install
-            -   name: run utils tests
-                run: npm run test-utils
+            -   name: setup postgres
+                uses: harmon758/postgresql-action@v1
+                with:
+                    postgresql db: test_db
+                    postgresql user: qwerty
+                    postgresql password: ytrewq
+            -   name: run app tests
+                run: PGDATABASE=test_db PGUSER=qwerty PGPASSWORD=ytrewq npm run test-utils
