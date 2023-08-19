@@ -2,7 +2,9 @@ const {selectArticle,
     allArticlesData,
     selectCommentsByArticleId,
     insertComment,
-    updateArticle} = require('../models/articles.model')
+    updateArticle,
+    insertArticle} = require('../models/articles.model');
+const {selectTopicBySlug,postTopic} = require('../models/topics.model');
 
 function getArticleById(request, response, next) {
     const {article_id} = request.params;
@@ -64,5 +66,47 @@ function patchArticleById(request, response, next) {
         next(err)
     })
 }
+
+function postArticle(request, response, next) {
+    const {body} = request;
+    const {topic} = request.body
     
-module.exports = {getArticleById, getAllArticlesData, getCommentsByArticleId, postComment, patchArticleById}
+    // const promises = [selectTopicBySlug(topic), insertArticle(body)];
+    // return Promise.all(promises)
+    // .then(promisesData => {
+    //     response.status(201).send({postedArticle: promisesData[1]})
+    // })
+    // .catch(err => {
+    //     if(err.code === '23503') {            
+    //         return postTopic({topic})
+    //     } else {
+    //         next(err)
+    //     }
+    // })
+    // .then(() => {
+    //     return insertArticle(body)
+    // })
+    // .then(postedArticle => {
+    //     response.status(201).send({postedArticle})
+    // })
+    // .catch(err => {
+    //     next(err)
+    // })
+    selectTopicBySlug(topic)    
+    .then((topicData) => {
+        if(!topicData) {
+            return postTopic({topic})
+        }        
+    })
+    .then(() => {
+        return insertArticle(body) 
+    })
+    .then(postedArticle => {
+        response.status(201).send({postedArticle})
+    })
+    .catch(err => {
+        next(err)
+    })
+}   
+    
+module.exports = {getArticleById, getAllArticlesData, getCommentsByArticleId, postComment, patchArticleById, postArticle}

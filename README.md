@@ -18,7 +18,6 @@ SOURCE CODE:
                 "pg": "^8.7.3",
                 "pg-format": "^1.0.4"
             devDependencies (for testing purposes)
-                "husky": "^8.0.2",
                 "jest": "^27.5.1",
                 "jest-extended": "^2.0.0",
                 "jest-sorted": "^1.0.14",
@@ -41,6 +40,7 @@ SOURCE CODE:
                 -to seed your development data into your database.
             Type `npm test`
                 -to run your tests in app.test.js
+                -this seeds test data which is being used for testing
                 
     To access the database:
         -In a testing environment
