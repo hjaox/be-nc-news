@@ -33,7 +33,8 @@ function postComment(request, response, next) {
 
 function getCommentsByArticleId(request, response, next) {
     const {article_id} = request.params;
-    const promises = [selectArticle(article_id), selectCommentsByArticleId(article_id)];
+    const {limit, p} = request.query;
+    const promises = [selectArticle(article_id), selectCommentsByArticleId(article_id, limit, p)];
 
     Promise.all(promises)
     .then((promisesData) => {
