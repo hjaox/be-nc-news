@@ -1,6 +1,6 @@
-const {allTopicsData} = require('../models/topics.model')
+const {allTopicsData, insertTopic} = require('../models/topics.model')
 
-function getAllTopicsData(request, response, next) {
+function getAllTopicsData(_, response, next) {
     allTopicsData()
     .then((topicsData) => {
         response.status(200).send(topicsData)
@@ -10,4 +10,15 @@ function getAllTopicsData(request, response, next) {
     })
 }
 
-module.exports = {getAllTopicsData}
+function postTopic(request, response, next) {
+    const {slug, description} = request.body;
+    return insertTopic({slug, description})
+    .then(postedTopic => {
+        response.status(201).send({postedTopic})
+    })
+    .catch(err => {
+        next(err)
+    })
+}
+
+module.exports = {getAllTopicsData, postTopic}

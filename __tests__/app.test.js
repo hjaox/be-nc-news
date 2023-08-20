@@ -473,7 +473,7 @@ describe('App Tests', () => {
                 votes: 0,
                 article_img_url: 'test3',
                 comment_count: 0
-            }
+            };
 
             return request(app)
             .post('/api/articles')
@@ -486,7 +486,7 @@ describe('App Tests', () => {
                 comment_count: 0
             })
             .then(({body: {postedArticle}}) => {
-                expect(postedArticle).toEqual(expectedObject)
+                expect(postedArticle).toEqual(expectedObject);
             });
         })
         test('201: returns the newly posted article and will provide a default article_img_url if not provided during request.', ()=> {
@@ -500,7 +500,7 @@ describe('App Tests', () => {
                 votes: 0,
                 article_img_url: 'Please provide image url',
                 comment_count: 0
-            }
+            };
 
             return request(app)
             .post('/api/articles')
@@ -525,7 +525,7 @@ describe('App Tests', () => {
                 votes: 0,
                 article_img_url: 'Please provide image url',
                 comment_count: 0
-            }
+            };
 
             return request(app)
             .post('/api/articles')
@@ -538,7 +538,7 @@ describe('App Tests', () => {
                 test1: 'test1'
             })
             .then(({body: {postedArticle}}) => {
-                expect(postedArticle).toEqual(expectedObject)
+                expect(postedArticle).toEqual(expectedObject);
             });
         })
         test('201: returns the newly posted article even if the topic of the requested body does not exist in the database and will add the new topic to the database', ()=> {
@@ -552,7 +552,7 @@ describe('App Tests', () => {
                 votes: 0,
                 article_img_url: 'Please provide image url',
                 comment_count: 0
-            }
+            };
 
             return request(app)
             .post('/api/articles')
@@ -563,7 +563,34 @@ describe('App Tests', () => {
                 topic: 'testTopic',
             })
             .then(({body: {postedArticle}}) => {
-                expect(postedArticle).toEqual(expectedObject)
+                expect(postedArticle).toEqual(expectedObject);
+            })
+        })
+    })
+    describe('POST `/api/topics` tests',() => {
+        test('201: returns status code 201 upon successful post request', () => {
+            return request(app)
+            .post(`/api/topics`)
+            .send({slug: 'test', description: 'test'})
+            .expect(201);
+        })
+        test('201: returns the posted topic', () => {
+            const testInput = {slug: 'test', description: 'test'};
+            return request(app)
+            .post(`/api/topics`)
+            .send(testInput)
+            .then(({body: {postedTopic}}) => {
+                expect(postedTopic).toEqual(testInput);
+            })
+        })
+        test('201: must have at least slug property to have a successful post request', () => {
+            const testInput = {slug: 'test', test: 'test'};
+            return request(app)
+            .post(`/api/topics`)
+            .send(testInput)
+            .then(({body: {postedTopic}}) => {
+                expect(postedTopic).toHaveProperty('slug', 'test');
+                expect(postedTopic).toHaveProperty('description', null);
             })
         })
     })
@@ -858,6 +885,14 @@ describe('App Tests', () => {
             .then(({body: {msg}}) => {
                 expect(msg).toBe('Bad Request')
             });
+        })
+    })
+    describe('POST `/api/topics` errors',() => {
+        test('400: returns status code 400 when no slug is found in the post body',() => {
+            return request(app)
+            .post('/api/topics')
+            .send({test: 'test'})
+            .expect(400)
         })
     })
 })

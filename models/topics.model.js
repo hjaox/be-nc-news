@@ -17,15 +17,15 @@ function selectTopicBySlug(slug) {
     })
 }
 
-function postTopic(body) {
+function insertTopic(body) {
     const queryStr = format(`
     INSERT INTO topics
     (slug, description)
-    VALUES %L RETURNING *`, [[body.topic, body.description]])
+    VALUES %L RETURNING *`, [[body.slug, body.description]])
     return db.query(queryStr)
     .then(({rows}) => {
         return rows[0]
     })    
 }
 
-module.exports = {allTopicsData, selectTopicBySlug, postTopic}
+module.exports = {allTopicsData, selectTopicBySlug, insertTopic}

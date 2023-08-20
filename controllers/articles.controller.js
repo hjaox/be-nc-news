@@ -4,7 +4,7 @@ const {selectArticle,
     insertComment,
     updateArticle,
     insertArticle} = require('../models/articles.model');
-const {selectTopicBySlug,postTopic} = require('../models/topics.model');
+const {selectTopicBySlug,insertTopic} = require('../models/topics.model');
 
 function getArticleById(request, response, next) {
     const {article_id} = request.params;
@@ -77,7 +77,7 @@ function postArticle(request, response, next) {
     selectTopicBySlug(topic)    
     .then((topicData) => {
         if(!topicData) {
-            return postTopic({topic})
+            return insertTopic({slug:topic})
         }        
     })
     .then(() => {
@@ -89,6 +89,6 @@ function postArticle(request, response, next) {
     .catch(err => {
         next(err)
     })
-}   
+}
     
 module.exports = {getArticleById, getAllArticlesData, getCommentsByArticleId, postComment, patchArticleById, postArticle}
