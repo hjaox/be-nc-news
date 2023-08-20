@@ -1,14 +1,14 @@
-function psqlErrorHandler(err, _, response, next) {    
-    if(err.code === '22P02' || err.code === '23502') {
+function psqlErrorHandler(err, _, response, next) {
+    if(/^(22P02|23502|42703|2201W|2201X)$/.test(err.code)){
         response.status(400).send({msg: 'Bad Request'})
-    } else if(err.code === '42P01' || err.code === '42601'){
+    } else if(/^(42P01|42601)$/.test(err.code)){
         response.status(404).send({msg: 'Not Found'})
     } else {
         next(err)
     }
 }
 
-function customErrorHandler(err, _, response, next) {    
+function customErrorHandler(err, _, response, next) { 
     if(err.status || err.msg) {
         response.status(err.status).send({msg: err.msg})
     } else {
@@ -16,8 +16,7 @@ function customErrorHandler(err, _, response, next) {
     }
 }
 
-function serverErrorHandler(err, _, response) {
-    console.log(err)
+function serverErrorHandler(err, _, response, __) {
     response.status(500).send(err)
 }
 

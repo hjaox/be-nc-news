@@ -29,17 +29,16 @@ function selectCommentsByArticleId(article_id) {
     })
 }
 
-function allArticlesData(topic, sort_by='created_at', order) {
-    const queryStrArr = [];
+function allArticlesData(topic, sort_by='created_at', order, limit=10, p = 1) {
     let baseQueryStr = `
     SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.article_img_url, articles.votes, COUNT(comments.body)::INT AS comment_count
     FROM articles 
-    JOIN comments ON articles.article_id = comments.article_id
-    JOIN topics ON topics.slug = articles.topic `;
+    LEFT JOIN comments ON articles.article_id = comments.article_id
+    LEFT JOIN topics ON topics.slug = articles.topic `;
 
     if(topic) {
-        queryStrArr.push(topic);
-        baseQueryStr = baseQueryStr + format(`WHERE topics.slug ILIKE %L `, [topic]);
+        baseQueryStr += format(`
+        WHERE topics.slug ILIKE %L `, [topic]);
     }
         
     baseQueryStr = baseQueryStr + format(`
@@ -58,6 +57,12 @@ function allArticlesData(topic, sort_by='created_at', order) {
         baseQueryStr += `DESC `;
     }
 
+    if(limit) {
+        baseQueryStr += format(`
+        LIMIT %s
+        OFFSET %s`, [limit], [(p-1)*limit])
+    }
+    
     return db.query(baseQueryStr)
     .then(({rows}) => {
         if(!rows.length) {

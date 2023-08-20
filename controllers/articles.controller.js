@@ -45,10 +45,12 @@ function getCommentsByArticleId(request, response, next) {
 }
 
 function getAllArticlesData(request, response, next) {
-    const {topic, sort_by, order} = request.query;
-    allArticlesData(topic, sort_by, order)
-    .then((allArticlesData) => {
-        response.status(200).send({articles: allArticlesData})
+    const {topic, sort_by, order, limit, p} = request.query;
+    const promises = [allArticlesData(topic, sort_by, order, false, p),allArticlesData(topic, sort_by, order, limit, p)]
+    
+    return Promise.all(promises)
+    .then(promisesData => {
+        response.status(200).send({total_count: promisesData[0].length, articles: promisesData[1]})
     })
     .catch(err => {
         next(err)
@@ -70,28 +72,7 @@ function patchArticleById(request, response, next) {
 function postArticle(request, response, next) {
     const {body} = request;
     const {topic} = request.body
-    
-    // const promises = [selectTopicBySlug(topic), insertArticle(body)];
-    // return Promise.all(promises)
-    // .then(promisesData => {
-    //     response.status(201).send({postedArticle: promisesData[1]})
-    // })
-    // .catch(err => {
-    //     if(err.code === '23503') {            
-    //         return postTopic({topic})
-    //     } else {
-    //         next(err)
-    //     }
-    // })
-    // .then(() => {
-    //     return insertArticle(body)
-    // })
-    // .then(postedArticle => {
-    //     response.status(201).send({postedArticle})
-    // })
-    // .catch(err => {
-    //     next(err)
-    // })
+
     selectTopicBySlug(topic)    
     .then((topicData) => {
         if(!topicData) {
