@@ -120,7 +120,7 @@ describe('App Tests', () => {
                 return request(app)
                 .get('/api/articles?topic=mitch')
                 .then(({body: {articles}}) => {
-                    expect(articles.length).toBe(4);
+                    expect(articles.length).toBe(10);
                     articles.forEach(article => {
                         expect(article.topic).toBe('mitch');
                     })
@@ -130,7 +130,7 @@ describe('App Tests', () => {
                 return request(app)
                 .get('/api/articles?topic=MiTcH')
                 .then(({body: {articles}}) => {
-                    expect(articles.length).toBe(4);
+                    expect(articles.length).toBe(10);
                     articles.forEach(article => {                        
                         expect(article.topic).toBe('mitch');
                     })
@@ -140,7 +140,7 @@ describe('App Tests', () => {
                 return request(app)
                 .get('/api/articles?sort_by=title')
                 .then(({body: {articles}})=> {
-                    expect(articles.length).toBe(5);
+                    expect(articles.length).toBe(10);
                     expect(articles).toBeSortedBy('title', {descending: true});
                 })
             })
@@ -148,7 +148,7 @@ describe('App Tests', () => {
                 return request(app)
                 .get('/api/articles?topic=mitch&sort_by=title')
                 .then(({body: {articles}})=> {
-                    expect(articles.length).toBe(4);
+                    expect(articles.length).toBe(10);
                     expect(articles).toBeSortedBy('title', {descending: true});
                     
                     articles.forEach(article => {
@@ -160,7 +160,7 @@ describe('App Tests', () => {
                 return request(app)
                 .get('/api/articles?sort_by=article_id&order=asc')
                 .then(({body: {articles}})=> {
-                    expect(articles.length).toBe(5);
+                    expect(articles.length).toBe(10);
                     expect(articles).toBeSortedBy('article_id', {descending: false});
                 })
             })
@@ -168,7 +168,7 @@ describe('App Tests', () => {
                 return request(app)
                 .get('/api/articles?sort_by=article_id&order=desc')
                 .then(({body: {articles}})=> {
-                    expect(articles.length).toBe(5);
+                    expect(articles.length).toBe(10);
                     expect(articles).toBeSortedBy('article_id', {descending: true});
                 })
             })
@@ -176,8 +176,51 @@ describe('App Tests', () => {
                 return request(app)
                 .get('/api/articles?sort_by=article_id')
                 .then(({body: {articles}})=> {
-                    expect(articles.length).toBe(5);
+                    expect(articles.length).toBe(10);
                     expect(articles).toBeSortedBy('article_id', {descending: true});
+                })
+            })
+            test('limit query: limits the number of responses(defaults to 10)', () => {
+                return request(app)
+                .get('/api/articles')
+                .then(({body: {articles}})=> {
+                    expect(articles.length).toBe(10);
+                })
+            })
+            test('limit query: limits the number of responses(specified to 5)', () => {
+                return request(app)
+                .get('/api/articles?limit=5')
+                .then(({body: {articles}})=> {
+                    expect(articles.length).toBe(5);
+                })
+            })
+            test('p query: page, specifies the page at which to start(page 1, limit 5)', () => {
+                return request(app)
+                .get('/api/articles?limit=5&p=1')
+                .then(({body: {articles}})=> {
+                    expect(articles.length).toBe(5);
+                })
+            })
+            test('p query: page, specifies the page at which to start(page 2, limit 5)', () => {
+                return request(app)
+                .get('/api/articles?limit=5&p=2')
+                .then(({body: {articles}})=> {
+                    expect(articles.length).toBe(5);
+                })
+            })
+            test('p query: page, specifies the page at which to start(page 3, limit 5)', () => {
+                return request(app)
+                .get('/api/articles?limit=5&p=3')
+                .then(({body: {articles}})=> {
+                    expect(articles.length).toBe(3);
+                })
+            })
+            test('total_count property: displaying the total number of articles(should display the total number of articles with any filters applied, discounting the limit)', () => {
+                return request(app)
+                .get('/api/articles')
+                .then(({body: {total_count, articles}})=> {
+                    expect(total_count).toBe(13)
+                    expect(articles.length).toBe(10);
                 })
             })
         })
@@ -649,9 +692,49 @@ describe('App Tests', () => {
                         expect(msg).toBe('Bad Request')
                     })
                 })
-                test('topic query: returns status code 404 if the request has no articles on an existing topic', () => {
+                test('404 topic query: returns status code 404 if the request has no articles on an existing topic', () => {
                     return request(app)
                     .get('/api/articles?topic=paper')
+                    .expect(404)
+                    .then(({body: {msg}}) => {
+                        expect(msg).toBe('Not Found')
+                    })
+                })
+                test('400 limit query: returns status code 400 if the request has an invalid limit value', () => {
+                    return request(app)
+                    .get('/api/articles?limit=test')
+                    .expect(400)
+                    .then(({body: {msg}}) => {
+                        expect(msg).toBe('Bad Request')
+                    })
+                })
+                test('400 limit query: returns status code 400 if the request has an invalid limit value', () => {
+                    return request(app)
+                    .get('/api/articles?limit=-1')
+                    .expect(400)
+                    .then(({body: {msg}}) => {
+                        expect(msg).toBe('Bad Request')
+                    })
+                })
+                test('400 p query: returns status code 400 if the request has an invalid limit value', () => {
+                    return request(app)
+                    .get('/api/articles?p=test')
+                    .expect(400)
+                    .then(({body: {msg}}) => {
+                        expect(msg).toBe('Bad Request')
+                    })
+                })
+                test('400 p query: returns status code 400 if the request has an invalid limit value', () => {
+                    return request(app)
+                    .get('/api/articles?p=-1')
+                    .expect(400)
+                    .then(({body: {msg}}) => {
+                        expect(msg).toBe('Bad Request')
+                    })
+                })
+                test('404 p query: returns status code 404 if the request has a valid limit value but non-existed pages', () => {
+                    return request(app)
+                    .get('/api/articles?p=999')
                     .expect(404)
                     .then(({body: {msg}}) => {
                         expect(msg).toBe('Not Found')
