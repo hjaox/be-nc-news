@@ -89,6 +89,6 @@ function postArticle(request, response, next) {
     .catch(err => {
         next(err)
     })
-}   
+}
     
 module.exports = {getArticleById, getAllArticlesData, getCommentsByArticleId, postComment, patchArticleById, postArticle}
