@@ -260,6 +260,43 @@ describe('App Tests', () => {
                 expect(comments).toEqual([]);
             })
         })
+        describe('Added feature: GET `/api/articles/:article_id/comments` tests', () => {
+            test('limit query: limits the number of responses',() => {
+                return request(app)
+                .get('/api/articles/1/comments?limit=5')
+                .then(({body: {comments}}) => {
+                    expect(comments.length).toBe(5)
+                })
+            })
+            test('limit query: limits the number of responses(defaults to 10)',() => {
+                return request(app)
+                .get('/api/articles/1/comments')
+                .then(({body: {comments}}) => {
+                    expect(comments.length).toBe(10)
+                })
+            })
+            test('p query: page query, specifies the page at which to start(calculated using limit) , testing page 1',() => {
+                return request(app)
+                .get('/api/articles/1/comments?limit=5&p=1')
+                .then(({body: {comments}}) => {
+                    expect(comments.length).toBe(5)
+                })
+            })
+            test('p query: page query, specifies the page at which to start(calculated using limit) , testing page 2',() => {
+                return request(app)
+                .get('/api/articles/1/comments?limit=5&p=2')
+                .then(({body: {comments}}) => {
+                    expect(comments.length).toBe(5)
+                })
+            })
+            test('p query: page query, specifies the page at which to start(calculated using limit) , testing page 3',() => {
+                return request(app)
+                .get('/api/articles/1/comments?limit=5&p=3')
+                .then(({body: {comments}}) => {
+                    expect(comments.length).toBe(1)
+                })
+            })
+        })
     })
     describe('POST `/api/articles/:article_id/comments` tests', () => {
         test('201: returns status code 201 upon successful POST request', () => {
@@ -565,6 +602,22 @@ describe('App Tests', () => {
                 .expect(404)
                 .then(({body: {msg}}) => {
                     expect(msg).toBe('Not Found')
+                })
+            })
+            test('400: returns status code 400 when sent with an invalid limit value', () => {
+                return request(app)
+                .get('/api/articles/1/comments?limit=test')
+                .expect(400)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Bad Request')
+                })
+            })
+            test('400: returns status code 400 when sent with an invalid p value', () => {
+                return request(app)
+                .get('/api/articles/1/comments?p=test')
+                .expect(400)
+                .then(({body: {msg}}) => {
+                    expect(msg).toBe('Bad Request')
                 })
             })
         })

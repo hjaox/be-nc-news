@@ -26,5 +26,24 @@ jobs:
                     postgresql db: test_db
                     postgresql user: qwerty
                     postgresql password: ytrewq
+            -   name: Set Timezone Action
+                uses: szenius/set-timezone@v1.2
+                with:
+                    timezoneLinux: 'Europe/London'
             -   name: run app tests
-                run: PGDATABASE=test_db PGUSER=qwerty PGPASSWORD=ytrewq npm run test-utils
+                run: PGDATABASE=test_db PGUSER=qwerty PGPASSWORD=ytrewq npm test
+    test-app-live-db:
+        needs: test-app
+        name: test-app
+        runs-on: ubuntu-latest
+        steps:
+            -   name: checkout and clone Repo
+                uses: actions/checkout@v3
+            -   name: install dependencies
+                run: npm install
+            -   name: Set Timezone Action
+                uses: szenius/set-timezone@v1.2
+                with:
+                    timezoneLinux: 'Europe/London'
+            -   name: run live db app tests
+                run: NODE_ENV=production DATABASE_URL=${{secrets.DATABASE_URL}} npm test

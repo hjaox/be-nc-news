@@ -17,11 +17,13 @@ function selectArticle(article_id) {
     })
 }
 
-function selectCommentsByArticleId(article_id) {
+function selectCommentsByArticleId(article_id, limit=10, p=1) {
     const queryStr = format(`
     SELECT * FROM comments
     WHERE article_id = %L
-    ORDER BY created_at DESC`, [article_id]);
+    ORDER BY created_at DESC
+    LIMIT %s
+    OFFSET %s`, [article_id], [limit], [(p-1)*limit]);
 
     return db.query(queryStr)
     .then(({rows}) => {
