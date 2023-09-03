@@ -6,10 +6,7 @@ const data = require('../db/data/test-data');
 const fs = require('fs/promises')
 
 beforeEach(() => seed(data));
-afterAll(() => {
-    jest.clearAllMocks()
-    return db.end()
-});
+afterAll(() => db.end());
 
 describe('App Tests', () => {
     describe('GET `/api/topics` tests', () => {
