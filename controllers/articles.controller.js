@@ -3,7 +3,8 @@ const {selectArticle,
     selectCommentsByArticleId,
     insertComment,
     updateArticle,
-    insertArticle} = require('../models/articles.model');
+    insertArticle,
+    deleteArticleById} = require('../models/articles.model');
 const {selectTopicBySlug,insertTopic} = require('../models/topics.model');
 
 function getArticleById(request, response, next) {
@@ -90,5 +91,16 @@ function postArticle(request, response, next) {
         next(err)
     })
 }
+
+function removeArticleById(request, response, next) {
+    const{article_id} = request.params;
+    deleteArticleById(article_id)
+    .then(() => {
+        response.status(204).send();
+    })
+    .catch(err => {
+        next(err)
+    })
+}
     
-module.exports = {getArticleById, getAllArticlesData, getCommentsByArticleId, postComment, patchArticleById, postArticle}
+module.exports = {getArticleById, getAllArticlesData, getCommentsByArticleId, postComment, patchArticleById, postArticle,removeArticleById}

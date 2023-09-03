@@ -376,7 +376,7 @@ describe('App Tests', () => {
             return request(app)
             .delete('/api/comments/1')
             .then(({body}) => {
-                expect(body).toEqual({})
+                expect(body).toEqual({});
             })
         })
     })
@@ -594,6 +594,25 @@ describe('App Tests', () => {
             })
         })
     })
+    describe('DELETE `/api/articles/:article_id` tests', () => {
+        test('returns status code 204 upon successful deletion', () => {
+            return request(app)
+            .delete('/api/articles/1')
+            .expect(204)
+            .then(() => {
+                return request(app)
+                .get('/api/articles/1')
+                .expect(404)
+            })
+        })
+        test('returns status code 204 upon successful deletion and no content', () => {
+            return request(app)
+            .delete('/api/articles/1')
+            .then(({body}) => {
+                expect(body).toEqual({})
+            })
+        })
+    })
 
     describe('Error handling tests', () => {
         describe('GET `/api/articles/:article_id` errors', () => {
@@ -605,7 +624,7 @@ describe('App Tests', () => {
                     expect(msg).toBe('Bad Request')
                 });
             })
-            test('400: returns status code 400 when sent with a valid but non-existent id request', () => {
+            test('404: returns status code 400 when sent with a valid but non-existent id request', () => {
                 return request(app)
                 .get('/api/articles/9999')
                 .expect(404)
@@ -893,6 +912,18 @@ describe('App Tests', () => {
             .post('/api/topics')
             .send({test: 'test'})
             .expect(400)
+        })
+    })
+    describe(' DELETE `/api/articles/:article_id` errors',() => {
+        test(`400: returns status code 400 if provided with an invalid article_id`,() => {
+            return request(app)
+            .delete('/api/articles/test')
+            .expect(400)
+        })
+        test(`404: returns status code 404 if provided with a valid but non-existent id`,() => {
+            return request(app)
+            .delete('/api/articles/99999')
+            .expect(404)
         })
     })
 })
