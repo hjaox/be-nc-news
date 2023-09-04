@@ -17,6 +17,7 @@ function customErrorHandler(err, _, response, next) {
 }
 
 function serverErrorHandler(err, _, response, __) {
+    console.log(err)
     response.status(500).send(err)
 }
 
